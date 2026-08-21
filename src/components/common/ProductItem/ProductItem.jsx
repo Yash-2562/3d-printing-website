@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cartContext } from '../../../context/Cart/Cart';
 import { productsContext } from '../../../context/Products/Products';
@@ -6,6 +6,13 @@ import { productsContext } from '../../../context/Products/Products';
 export default function ProductItem({ product, isWished, handleWishlist }) {
   const { addProduct } = useContext(cartContext);
   const { renderStars } = useContext(productsContext);
+  const [isWishlistAnimating, setIsWishlistAnimating] = useState(false);
+
+  function onWishlistClick() {
+    setIsWishlistAnimating(true);
+    window.setTimeout(() => setIsWishlistAnimating(false), 550);
+    handleWishlist(product._id);
+  }
 
   return (
     <div className="w-full min-w-0">
@@ -74,8 +81,10 @@ export default function ProductItem({ product, isWished, handleWishlist }) {
 
             {/* WISHLIST */}
             <button
-              onClick={() => handleWishlist(product._id)}
-              className="
+              type="button"
+              aria-label={isWished ? 'Remove from wishlist' : 'Add to wishlist'}
+              onClick={onWishlistClick}
+              className={`
                 absolute
                 right-4
                 top-4
@@ -90,10 +99,11 @@ export default function ProductItem({ product, isWished, handleWishlist }) {
                 transition-all
                 duration-300
                 hover:scale-110
-              "
+                ${isWishlistAnimating ? 'wishlist-pop' : ''}
+              `}
             >
               {isWished ? (
-                <i className="fas fa-heart text-red-500"></i>
+                <i className="fas fa-heart text-green-500"></i>
               ) : (
                 <i className="far fa-heart text-gray-700"></i>
               )}

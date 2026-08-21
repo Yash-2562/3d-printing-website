@@ -1,225 +1,465 @@
-// import img1 from '../../../assets/slider-image-1.jpeg';
-// import img2 from '../../../assets/slider-image-2.jpeg';
-// import img3 from '../../../assets/slider-image-3.jpeg';
-
-// import Slider from 'react-slick';
-
-// export default function MainSlider() {
-//   var settings = {
-//     dots: false,
-//     infinite: true,
-//     arrows: false,
-//     speed: 500,
-//     autoplay: true,
-//     slidesToShow: 1,
-//     slidesToScroll: 1,
-//   };
-
-//   return (
-//     <div className="container mt-7">
-//       <div className="flex">
-//         <div className="md:w-3/4 w-full my-0">
-//           <Slider {...settings}>
-//             <img
-//               className="w-full h-[400px] object-cover object-right rounded-lg md:rounded-l-lg md:rounded-r-none"
-//               src={img1}
-//             />
-//             <img
-//               className="w-full h-[400px] object-cover object-right rounded-lg md:rounded-l-lg md:rounded-r-none"
-//               src={img2}
-//             />
-//             <img
-//               className="w-full h-[400px] object-cover object-right rounded-lg md:rounded-l-lg md:rounded-r-none"
-//               src={img3}
-//             />
-//           </Slider>
-//         </div>
-//         <div className="md:w-1/4 md:block hidden">
-//           <div className="h-1/2">
-//             <img
-//               className="w-full h-[200px] object-cover md:rounded-tr-lg"
-//               src={img2}
-//             />
-//           </div>
-//           <div className="h-1/2">
-//             <img
-//               className="w-full h-[200px] object-cover md:rounded-br-lg"
-//               src={img3}
-//             />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 import { useState } from 'react';
 import img1 from '../../../assets/slider-image-1.jpeg';
 import img2 from '../../../assets/slider-image-2.jpeg';
 import img3 from '../../../assets/slider-image-3.jpeg';
 
-import Slider from 'react-slick';
+import { MotionConfig, motion } from 'framer-motion';
 
-/**
- * PocketForm hero slider
- * -----------------------
- * Same 3 images / react-slick engine as before. Redesign adds:
- *  - A dark gradient scrim + headline/CTA copy overlaid on the active slide,
- *    so the slider reads as a hero, not a bare carousel.
- *  - Custom pill-style dot indicators (react-slick's dots re-skinned) instead
- *    of default dots — track progress like a print job.
- *  - A floating "stat card" badge (rating / prints shipped) that overlaps the
- *    bottom-left corner of the main image — the standout element.
- *  - Side thumbnails get a hover zoom + label chip instead of sitting static.
- *  - A small "LIVE PRINTING" pulse badge top-right for atmosphere.
- */
+const textReveal = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+      delayChildren: 0.16,
+    },
+  },
+};
+
+const itemReveal = {
+  hidden: { opacity: 0, y: 16, filter: 'blur(4px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const headingReveal = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const wordReveal = {
+  hidden: { opacity: 0, y: '0.45em', rotateX: -35 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    transition: { duration: 1, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const cardReveal = {
+  hidden: { opacity: 0, x: 18, scale: 0.97, rotateY: -10 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    rotateY: -8,
+    transition: { duration: 1.2, delay: 0.24, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 const slides = [
   {
     img: img1,
-    eyebrow: 'New drop',
-    title: 'Pocket-size prints, made from your photo',
-    cta: 'Start a custom order',
+    eyebrow: 'CUSTOM 3D PRINTING',
+    title: 'Your imagination, made tangible.',
+    description:
+      'Turn your ideas, memories and designs into beautifully detailed pocket-size 3D prints.',
+    cta: 'Create your print',
+    tag: 'From your photo',
   },
   {
     img: img2,
-    eyebrow: 'Nano Banana scale',
-    title: 'Miniatures that fit in your palm',
-    cta: 'Shop nano minis',
+    eyebrow: 'NANO COLLECTION',
+    title: 'Tiny objects. Incredible detail.',
+    description:
+      'Explore miniature 3D creations engineered to look amazing at every angle.',
+    cta: 'Explore minis',
+    tag: 'Nano scale',
   },
   {
     img: img3,
-    eyebrow: 'Gifting',
-    title: 'Turn any keepsake into a 3D print',
-    cta: 'Browse gift picks',
+    eyebrow: 'GIFT COLLECTION',
+    title: 'Make something worth keeping.',
+    description:
+      'Transform special moments into physical keepsakes designed to last.',
+    cta: 'Explore gifts',
+    tag: 'Made to remember',
   },
 ];
 
 export default function MainSlider() {
   const [active, setActive] = useState(0);
 
-  var settings = {
+  const settings = {
     dots: false,
-    infinite: true,
     arrows: false,
-    speed: 600,
+    infinite: true,
+    speed: 700,
     autoplay: true,
-    autoplaySpeed: 3500,
+    autoplaySpeed: 4500,
     slidesToShow: 1,
     slidesToScroll: 1,
     beforeChange: (_, next) => setActive(next),
   };
 
+  const slide = slides[active];
+
   return (
-    <div className="container mt-7">
-      <div className="flex gap-3">
-        {/* Main slide column */}
-        <div className="md:w-3/4 w-full relative mb-10 sm:mb-6 md:mb-0">
-          <Slider {...settings}>
-            {slides.map((slide, i) => (
-              <div key={i} className="relative">
-                <img
-                  className="w-full h-[240px] sm:h-[320px] md:h-[400px] object-cover object-right rounded-lg md:rounded-l-lg md:rounded-r-none"
-                  src={slide.img}
-                  alt={slide.title}
-                />
-              </div>
-            ))}
-          </Slider>
+    <MotionConfig reducedMotion="user">
+      <section className="relative w-full min-h-[calc(100svh-100px)] scroll-mt-[100px] overflow-hidden bg-[#f5f7f4] py-8 sm:py-12 md:py-16">
 
-          {/* gradient scrim so text stays legible over any photo */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent rounded-lg md:rounded-l-lg md:rounded-r-none" />
+        {/* ================= BACKGROUND ================= */}
 
-          {/* live badge */}
-          <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm text-white text-[10px] sm:text-[11px] font-medium px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full">
-            <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-green-500" />
-            </span>
-            <span className="hidden sm:inline">Printing live now</span>
-            <span className="sm:hidden">Live</span>
-          </div>
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
-          {/* overlay copy + CTA, keyed so it re-animates per slide */}
+          {/* soft green glow */}
+          <div className="absolute -right-40 top-10 h-[500px] w-[500px] rounded-full bg-emerald-200/30 blur-[120px]" />
+
+          <div className="absolute -left-40 bottom-0 h-[400px] w-[400px] rounded-full bg-green-100/50 blur-[100px]" />
+
+          {/* 3D perspective grid */}
           <div
-            key={active}
-            className="absolute left-0 bottom-0 p-4 sm:p-6 md:p-8 max-w-[85%] sm:max-w-md animate-[pf-slide-in_0.6s_cubic-bezier(0.22,1,0.36,1)_forwards]"
-          >
-            <span className="inline-block text-green-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wide mb-1.5 sm:mb-2">
-              {slides[active].eyebrow}
-            </span>
-            <h2 className="text-white text-lg sm:text-2xl md:text-3xl font-bold leading-tight mb-3 sm:mb-4">
-              {slides[active].title}
-            </h2>
-            <button className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-colors duration-200 shadow-lg shadow-green-900/30">
-              {slides[active].cta}
-              <i className="fa-solid fa-arrow-right text-xs" />
-            </button>
-          </div>
+            className="absolute -bottom-32 left-1/2 h-[500px] w-[1200px] -translate-x-1/2 opacity-[0.12]"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(16,185,129,.45) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16,185,129,.45) 1px, transparent 1px)
+              `,
+              backgroundSize: '50px 50px',
+              transform:
+                'translateX(-50%) perspective(500px) rotateX(65deg)',
+            }}
+          />
 
-          {/* custom dot / progress indicators */}
-          <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 flex items-center gap-1.5">
-            {slides.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === active ? 'w-6 bg-green-500' : 'w-1.5 bg-white/50'
-                }`}
+          {/* decorative circles */}
+          <div className="absolute right-[18%] top-20 h-3 w-3 rounded-full bg-emerald-400/60" />
+          <div className="absolute right-[12%] top-40 h-2 w-2 rounded-full bg-emerald-500/40" />
+          <div className="absolute left-[8%] top-24 h-2 w-2 rounded-full bg-emerald-400/40" />
+
+        </div>
+
+        <div className="relative mx-auto w-full max-w-screen-xl px-4 sm:px-6">
+
+          <div className="grid min-h-[540px] items-center gap-8 lg:min-h-[calc(100svh-100px)] lg:grid-cols-[0.85fr_1.15fr] xl:min-h-[590px]">
+
+            {/* =====================================================
+                LEFT CONTENT
+            ====================================================== */}
+
+            <motion.div
+              key={active}
+              variants={textReveal}
+              initial="hidden"
+              animate="visible"
+              className="relative z-20 max-w-xl"
+            >
+
+              {/* eyebrow */}
+
+              <motion.div variants={itemReveal} className="mb-5 flex items-center gap-3">
+
+                <span className="h-[1px] w-8 bg-emerald-600" />
+
+                <span className="text-[11px] font-bold tracking-[0.2em] text-emerald-700">
+                  {slide.eyebrow}
+                </span>
+
+              </motion.div>
+
+              {/* heading */}
+
+              <motion.h1
+                variants={headingReveal}
+                className="max-w-[620px] text-4xl font-black leading-[0.98] tracking-[-0.04em] text-slate-900 sm:text-5xl md:text-6xl xl:text-[70px]"
+                style={{ perspective: 800 }}
+              >
+
+                {slide.title.split(' ').map((word, index) => (
+                  <motion.span
+                    key={index}
+                    variants={wordReveal}
+                    className="inline-block origin-bottom"
+                  >
+                    {word}{' '}
+                    {index === 1 && (
+                      <br className="hidden sm:block" />
+                    )}
+                  </motion.span>
+                ))}
+
+              </motion.h1>
+
+              {/* description */}
+
+              <motion.p
+                variants={itemReveal}
+                className="mt-6 max-w-md text-sm leading-6 text-slate-500 sm:text-base"
+              >
+                {slide.description}
+              </motion.p>
+
+              {/* CTA */}
+
+              <motion.div
+                variants={itemReveal}
+                className="mt-8 flex flex-wrap items-center gap-4"
+              >
+
+                <button className="group flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-slate-900/20 transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-600 hover:shadow-emerald-600/20">
+
+                  {slide.cta}
+
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 transition-transform duration-300 group-hover:translate-x-1">
+                    <i className="fa-solid fa-arrow-right text-[10px]" />
+                  </span>
+
+                </button>
+
+                <button className="text-sm font-semibold text-slate-600 transition hover:text-emerald-600">
+                  See how it works
+                </button>
+
+              </motion.div>
+
+              {/* stats */}
+
+              <motion.div
+                variants={itemReveal}
+                className="mt-10 flex items-center gap-7 border-t border-slate-200/80 pt-6"
+              >
+
+                <div>
+                  <p className="text-xl font-black text-slate-900">
+                    12.4K+
+                  </p>
+
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                    Prints shipped
+                  </p>
+                </div>
+
+                <div className="h-9 w-px bg-slate-200" />
+
+                <div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xl font-black text-slate-900">
+                      4.9
+                    </span>
+
+                    <i className="fa-solid fa-star text-xs text-emerald-500" />
+                  </div>
+
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                    Customer rating
+                  </p>
+                </div>
+
+              </motion.div>
+
+            </motion.div>
+
+
+            {/* =====================================================
+                RIGHT 3D PRODUCT STAGE
+            ====================================================== */}
+
+            <div className="relative h-[430px] sm:h-[500px] md:h-[550px]">
+
+              {/* giant background number */}
+
+              <div className="absolute right-0 top-0 select-none text-[150px] font-black leading-none tracking-[-0.08em] text-slate-900/[0.035] sm:text-[220px]">
+                3D
+              </div>
+
+
+              {/* rotating decorative ring */}
+
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 42, repeat: Infinity, ease: 'linear' }}
+                className="absolute left-[48%] top-[48%] h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-500/10 sm:h-[420px] sm:w-[420px]"
               />
-            ))}
+
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 32, repeat: Infinity, ease: 'linear' }}
+                className="absolute left-[48%] top-[48%] h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-emerald-500/15 sm:h-[350px] sm:w-[350px]"
+              />
+
+
+              {/* PRODUCT SHADOW */}
+
+              <div className="absolute bottom-[55px] left-[52%] h-16 w-[65%] -translate-x-1/2 rounded-[50%] bg-black/20 blur-3xl" />
+
+
+              {/* =================================================
+                  MAIN 3D IMAGE
+              ================================================== */}
+
+              <div
+                className="absolute left-[50%] top-[48%] z-10 w-[88%] -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  perspective: '1200px',
+                }}
+              >
+
+                <motion.div
+                  key={active}
+                  variants={cardReveal}
+                  initial="hidden"
+                  animate="visible"
+                  className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/50 shadow-[0_35px_80px_rgba(15,23,42,0.20)]"
+                  style={{
+                    transformStyle: 'preserve-3d',
+                  }}
+                >
+
+                  {/* image */}
+
+                  <img
+                    src={slide.img}
+                    alt={slide.title}
+                    className="h-[330px] w-full object-cover object-center sm:h-[400px] md:h-[430px]"
+                  />
+
+                  {/* cinematic gradient */}
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-white/10" />
+
+                  {/* glass shine */}
+
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent" />
+
+                </motion.div>
+
+              </div>
+
+
+              {/* =================================================
+                  FLOATING PRODUCT INFO
+              ================================================== */}
+
+              <motion.div
+                key={`${active}-info`}
+                initial={{ opacity: 0, x: 18, y: -8, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                transition={{ duration: 0.95, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute right-0 top-[18%] z-30 hidden w-44 rounded-2xl border border-white/70 bg-white/75 p-4 shadow-[0_20px_50px_rgba(15,23,42,.14)] backdrop-blur-xl sm:block"
+                style={{
+                  transform: 'rotate(4deg)',
+                }}
+              >
+
+                <div className="mb-3 flex items-center justify-between">
+
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <i className="fa-solid fa-cube" />
+                  </div>
+
+                  <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold text-emerald-600">
+                    LIVE
+                  </span>
+
+                </div>
+
+                <p className="text-xs font-bold text-slate-900">
+                  {slide.tag}
+                </p>
+
+                <p className="mt-1 text-[10px] leading-4 text-slate-400">
+                  Precision printed with premium detail.
+                </p>
+
+              </motion.div>
+
+
+              {/* =================================================
+                  FLOATING PRINT CARD
+              ================================================== */}
+
+              <motion.div
+                key={`${active}-print`}
+                initial={{ opacity: 0, x: -18, y: 14, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute bottom-[10%] left-0 z-30 w-48 rounded-2xl border border-white/80 bg-white/85 p-3 shadow-[0_25px_60px_rgba(15,23,42,.18)] backdrop-blur-xl sm:w-56 sm:p-4"
+                style={{
+                  transform: 'rotate(-4deg)',
+                }}
+              >
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                    <i className="fa-solid fa-print" />
+                  </div>
+
+                  <div>
+
+                    <p className="text-xs font-black text-slate-900">
+                      Printing now
+                    </p>
+
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      Your next creation
+                    </p>
+
+                  </div>
+
+                </div>
+
+                {/* progress */}
+
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
+
+                  <div className="h-full w-[72%] rounded-full bg-emerald-500" />
+
+                </div>
+
+                <div className="mt-2 flex justify-between text-[9px] text-slate-400">
+                  <span>Layer 728</span>
+                  <span>72%</span>
+                </div>
+
+              </motion.div>
+
+
+              {/* =================================================
+                  SMALL FLOATING DOT
+              ================================================== */}
+
+              <div className="absolute bottom-[22%] right-[10%] z-30 flex h-12 w-12 items-center justify-center rounded-full border border-white bg-white/80 shadow-xl backdrop-blur-md">
+
+                <div className="h-3 w-3 animate-pulse rounded-full bg-emerald-500" />
+
+              </div>
+
+
+              {/* =================================================
+                  SLIDER CONTROLS
+              ================================================== */}
+
+              <div className="absolute bottom-2 right-2 z-40 flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3 py-2 shadow-lg backdrop-blur-xl">
+
+                {slides.map((_, index) => (
+
+                  <button
+                    key={index}
+                    onClick={() => setActive(index)}
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                      active === index
+                        ? 'w-8 bg-emerald-600'
+                        : 'w-1.5 bg-slate-300'
+                    }`}
+                  />
+
+                ))}
+
+              </div>
+
+            </div>
+
           </div>
 
-          {/* floating stat card — the standout element, now visible on every breakpoint */}
-          <div className="flex absolute -bottom-6 sm:-bottom-5 left-3 sm:left-6 items-center gap-2 sm:gap-3 bg-white rounded-xl shadow-xl shadow-black/10 px-3 sm:px-4 py-2 sm:py-3 border border-gray-100">
-            <div className="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-green-100 text-green-700 shrink-0">
-              <i className="fa-solid fa-cube text-xs sm:text-sm" />
-            </div>
-            <div className="leading-tight">
-              <p className="text-xs sm:text-sm font-bold text-gray-900">12,400+</p>
-              <p className="text-[10px] sm:text-[11px] text-gray-500">minis printed &amp; shipped</p>
-            </div>
-          </div>
         </div>
 
-        {/* Side thumbnails */}
-        <div className="md:w-1/4 md:flex hidden flex-col gap-3">
-          <div className="relative h-1/2 rounded-tr-lg overflow-hidden group cursor-pointer">
-            <img
-              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-              src={img2}
-              alt="Nano Banana scale"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <span className="absolute bottom-2 left-2 text-white text-xs font-semibold px-2.5 py-1 rounded-full bg-black/30 backdrop-blur-sm">
-              Nano Banana
-            </span>
-          </div>
-          <div className="relative h-1/2 rounded-br-lg overflow-hidden group cursor-pointer">
-            <img
-              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-              src={img3}
-              alt="Gift picks"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <span className="absolute bottom-2 left-2 text-white text-xs font-semibold px-2.5 py-1 rounded-full bg-black/30 backdrop-blur-sm">
-              Gift picks
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes pf-slide-in {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-\\[pf-slide-in_0\\.6s_cubic-bezier\\(0\\.22\\,1\\,0\\.36\\,1\\)_forwards\\] {
-            animation: none !important;
-            opacity: 1 !important;
-            transform: none !important;
-          }
-        }
-      `}</style>
-    </div>
+      </section>
+    </MotionConfig>
   );
 }

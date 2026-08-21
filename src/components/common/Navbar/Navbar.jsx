@@ -330,7 +330,7 @@ export default function Navbar() {
     ? [
         { to: '/', label: 'Home', icon: 'fa-house' },
         { to: 'shop', label: 'Shop Minis', icon: 'fa-cubes' },
-        { to: 'categories', label: 'Nano Banana', icon: 'fa-seedling' },
+        { to: 'categories', label: 'Our collections', icon: 'fa-seedling' },
         { to: 'custom-order', label: 'Custom Order', icon: 'fa-wand-magic-sparkles' },
         { to: 'brands', label: 'Studios', icon: 'fa-tags' },
       ]

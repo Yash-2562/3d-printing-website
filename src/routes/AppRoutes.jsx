@@ -25,6 +25,8 @@ import ProductsContextProvider from '../context/Products/Products';
 import Search from '../pages/customer/Search/Search';
 import RedirectIfAuthenticated from '../components/common/RedirectIfAuthenticated/RedirectIfAuthenticated';
 import Profile from '../pages/customer/Profile/Profile';
+import Shop from '../pages/customer/Shop/Shop';
+import CustomOrder from '../pages/customer/Shop/Customorder';
 
 function App() {
   const queryClient = new QueryClient();
@@ -112,6 +114,22 @@ function App() {
           element: (
             <ProtectedRoute>
               <Categories />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'shop',
+          element: (
+            <ProtectedRoute>
+              <Shop />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'custom-order',
+          element: (
+            <ProtectedRoute>
+              <CustomOrder />
             </ProtectedRoute>
           ),
         },

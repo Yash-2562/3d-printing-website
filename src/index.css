@@ -38,6 +38,25 @@ body::before {
 	mask-image: linear-gradient(to bottom, black, transparent 78%);
 }
 
+@keyframes wishlist-pop {
+	0% {
+		transform: scale(1);
+	}
+	35% {
+		transform: scale(0.82) rotate(-10deg);
+	}
+	65% {
+		transform: scale(1.18) rotate(8deg);
+	}
+	100% {
+		transform: scale(1) rotate(0);
+	}
+}
+
+.wishlist-pop {
+	animation: wishlist-pop 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 h1,
 h2,
 h3,
@@ -94,5 +113,9 @@ h6 {
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
+	}
+
+	.wishlist-pop {
+		animation: none;
 	}
 }
