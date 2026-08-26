@@ -22,7 +22,7 @@ function updateAdminOrder(string $orderId): void
     if (!in_array($status, ['waiting_confirmation', 'confirmed', 'printing_started', 'shipped', 'delivered', 'cancelled'], true)) respond(['message' => 'Invalid order status'], 422);
     
     // Check if order exists and get user details
-    $orderStatement = db()->prepare('SELECT o.id, o.user_id, o.total, u.name, u.email FROM orders o JOIN users u ON u.id = o.user_id WHERE o.id = ?');
+    $orderStatement = db()->prepare('SELECT o.id, o.user_id, o.total, o.status AS current_status, u.name, u.email FROM orders o JOIN users u ON u.id = o.user_id WHERE o.id = ?');
     $orderStatement->execute([$orderId]);
     $orderData = $orderStatement->fetch();
     
@@ -36,8 +36,8 @@ function updateAdminOrder(string $orderId): void
     // Create in-app notification
     createNotification($orderData['user_id'], $orderId, 'ORDER_STATUS_UPDATED', 'Order status updated to ' . $status);
     
-    // Send email notification (except for waiting_confirmation status)
-    if ($status !== 'waiting_confirmation') {
+    // Send email only for real admin status changes after waiting_confirmation.
+    if ($status !== 'waiting_confirmation' && $orderData['current_status'] !== $status) {
         $emailSent = sendOrderStatusNotification(
             $orderData['email'],
             $orderData['name'],

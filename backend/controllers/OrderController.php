@@ -64,9 +64,8 @@ function verifyCustomerPayment(string $userId): void
     $expected = hash_hmac('sha256', $razorpayOrderId . '|' . $razorpayPaymentId, RAZORPAY_KEY_SECRET);
     if (!$payment || !hash_equals($expected, $signature) || !hash_equals($payment['razorpay_order_id'], $razorpayOrderId)) respond(['message' => 'Razorpay payment verification failed'], 422);
     db()->prepare('UPDATE payments SET status = "SUCCESSFUL", razorpay_payment_id = ? WHERE id = ?')->execute([$razorpayPaymentId, $payment['id']]);
-    db()->prepare('UPDATE orders SET status = "confirmed" WHERE id = ? AND user_id = ?')->execute([$orderId, $userId]);
     $cart = cartFor($userId);
     db()->prepare('DELETE FROM cart_items WHERE cart_id = ?')->execute([$cart['_id']]);
-    createNotification($userId, $orderId, 'ORDER_CONFIRMED', 'Payment verified and order confirmed');
+    createNotification($userId, $orderId, 'PAYMENT_VERIFIED', 'Payment verified and order waiting for confirmation');
     respond(['status' => 'success', 'payment' => ['gateway' => 'razorpay', 'status' => 'SUCCESSFUL', 'razorpayOrderId' => $razorpayOrderId, 'razorpayPaymentId' => $razorpayPaymentId], 'message' => 'Payment verified successfully']);
 }

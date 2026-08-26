@@ -137,7 +137,7 @@ export default function Checkout() {
               <i className="fa-solid fa-circle-check mt-1 text-xl text-green-700" />
               <div>
                 <h1 className="text-lg font-bold">Payment successful</h1>
-                <p className="mt-1 text-sm">Your order is confirmed in test mode. The admin payment ledger has been updated.</p>
+                <p className="mt-1 text-sm">Your payment is verified in test mode. Your order is waiting for admin confirmation.</p>
                 <dl className="mt-4 space-y-1 text-sm">
                   <div className="flex justify-between gap-4"><dt>Gateway</dt><dd className="font-semibold">Razorpay test mode</dd></div>
                   <div className="flex justify-between gap-4"><dt>Order ID</dt><dd className="font-mono">{payment.razorpayOrderId}</dd></div>
