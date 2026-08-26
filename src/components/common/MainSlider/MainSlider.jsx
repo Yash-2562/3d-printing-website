@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import img1 from '../../../assets/slider-image-1.jpeg';
 import img2 from '../../../assets/slider-image-2.jpeg';
 import img3 from '../../../assets/slider-image-3.jpeg';
@@ -85,18 +86,7 @@ const slides = [
 
 export default function MainSlider() {
   const [active, setActive] = useState(0);
-
-  const settings = {
-    dots: false,
-    arrows: false,
-    infinite: true,
-    speed: 700,
-    autoplay: true,
-    autoplaySpeed: 4500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    beforeChange: (_, next) => setActive(next),
-  };
+  const navigate = useNavigate();
 
   const slide = slides[active];
 
@@ -201,7 +191,10 @@ export default function MainSlider() {
                 className="mt-8 flex flex-wrap items-center gap-4"
               >
 
-                <button className="group flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-slate-900/20 transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-600 hover:shadow-emerald-600/20">
+                <button
+                  onClick={() => navigate('/custom-order')}
+                  className="group flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-slate-900/20 transition-all duration-300 hover:-translate-y-1 hover:bg-emerald-600 hover:shadow-emerald-600/20"
+                >
 
                   {slide.cta}
 
@@ -315,6 +308,9 @@ export default function MainSlider() {
                   <img
                     src={slide.img}
                     alt={slide.title}
+                    width="800"
+                    height="600"
+                    fetchPriority="high"
                     className="h-[330px] w-full object-cover object-center sm:h-[400px] md:h-[430px]"
                   />
 

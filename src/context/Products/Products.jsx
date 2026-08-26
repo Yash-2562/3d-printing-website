@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '../../lib/api';
 import { createContext, useState } from 'react';
 
 export const productsContext = createContext(null);
@@ -35,8 +35,8 @@ export default function ProductsContextProvider(props) {
   });
 
   function getProducts() {
-    return axios
-      .get('https://ecommerce.routemisr.com/api/v1/products')
+    return apiClient
+      .get('/products')
       .then((res) => res);
   }
 

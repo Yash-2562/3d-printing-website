@@ -1,15 +1,35 @@
 import { useFormik } from 'formik';
-import axios from 'axios';
+import apiClient from '../../../lib/api';
 import * as Yup from 'yup';
 import { useContext, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { cartContext } from '../../../context/Cart/Cart';
 import { authContext } from '../../../context/Auth/Auth';
 
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve();
+
+  const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+  const script = existingScript || document.createElement('script');
+
+  return new Promise((resolve, reject) => {
+    script.addEventListener('load', () => window.Razorpay ? resolve() : reject(new Error('Razorpay Checkout could not be loaded.')), { once: true });
+    script.addEventListener('error', () => reject(new Error('Unable to load Razorpay Checkout. Check your network connection and try again.')), { once: true });
+    if (!existingScript) {
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  });
+}
+
 export default function Checkout() {
   const [isLoading, setIsLoading] = useState(false);
+  const [payment, setPayment] = useState(null);
+  const [error, setError] = useState('');
   const { id } = useParams();
+  const navigate = useNavigate();
   const { emptyCart } = useContext(cartContext);
   const { userToken } = useContext(authContext);
 
@@ -21,22 +41,61 @@ export default function Checkout() {
 
   function handleCheckout(data) {
     setIsLoading(true);
+    setError('');
 
     const config = {
       method: 'post',
-      url: `https://ecommerce.routemisr.com/api/v1/orders/checkout-session/${id}?url=https://ecommerce-nine-ivory-88.vercel.app/`,
+      url: `/orders/checkout-session/${id}`,
       headers: {
         token: userToken,
       },
       data: data,
     };
 
-    axios.request(config).then((response) => {
-      setIsLoading(false);
-
-      if (response.data.status === 'success') {
-        window.location.href = response.data.session.url;
+    apiClient.request(config).then(async (response) => {
+      const session = response.data;
+      if (!session || typeof session !== 'object') {
+        throw new Error('The checkout API returned an invalid response. Please try again.');
       }
+      if (!session.payment?.keyId || !session.payment?.razorpayOrderId) {
+        throw new Error(session.message || 'Unable to create checkout session. Please try again.');
+      }
+      await loadRazorpay();
+      const checkout = new window.Razorpay({
+        key: session.payment.keyId,
+        amount: session.payment.amount,
+        currency: session.payment.currency,
+        name: 'PrintForge Studio',
+        description: 'PrintForge test-mode purchase',
+        order_id: session.payment.razorpayOrderId,
+        prefill: { contact: formik.values.phone },
+        theme: { color: '#15803d' },
+        handler: async (result) => {
+          try {
+            const verification = await apiClient.post('/orders/payment-verify', { orderId: session.orderId, ...result });
+            await emptyCart();
+            formik.resetForm();
+            setPayment(null);
+            navigate('/orders', {
+              replace: true,
+              state: {
+                orderId: session.orderId,
+                payment: verification.data.payment,
+              },
+            });
+          } catch (requestError) {
+            setError(requestError.response?.data?.message || 'Payment verification failed. Please contact support.');
+          } finally {
+            setIsLoading(false);
+          }
+        },
+        modal: { ondismiss: () => setIsLoading(false) },
+      });
+      checkout.on('payment.failed', () => { setError('Razorpay payment failed. Your order remains pending.'); setIsLoading(false); });
+      checkout.open();
+    }).catch((requestError) => {
+      setError(requestError.response?.data?.message || requestError.message || 'Unable to start payment. Please try again.');
+      setIsLoading(false);
     });
   }
 
@@ -50,8 +109,8 @@ export default function Checkout() {
     phone: Yup.string()
       .required('Phone number is required')
       .matches(
-        /^01[0-2|5]{1}[0-9]{8}$/,
-        'Phone number is not valid (01234567891)'
+        /^[6-9][0-9]{9}$/,
+        'Enter a valid 10-digit Indian mobile number'
       ),
   });
 
@@ -72,12 +131,29 @@ export default function Checkout() {
       </Helmet>
 
       <div className="container">
+        {payment && (
+          <div className="mx-auto mb-8 max-w-md rounded-xl border border-green-200 bg-green-50 p-5 text-green-900 shadow-sm" role="status">
+            <div className="flex items-start gap-3">
+              <i className="fa-solid fa-circle-check mt-1 text-xl text-green-700" />
+              <div>
+                <h1 className="text-lg font-bold">Payment successful</h1>
+                <p className="mt-1 text-sm">Your order is confirmed in test mode. The admin payment ledger has been updated.</p>
+                <dl className="mt-4 space-y-1 text-sm">
+                  <div className="flex justify-between gap-4"><dt>Gateway</dt><dd className="font-semibold">Razorpay test mode</dd></div>
+                  <div className="flex justify-between gap-4"><dt>Order ID</dt><dd className="font-mono">{payment.razorpayOrderId}</dd></div>
+                  <div className="flex justify-between gap-4"><dt>Payment ID</dt><dd className="font-mono">{payment.razorpayPaymentId}</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        )}
         <form
           method="post"
           className="max-w-md mx-auto"
           onSubmit={formik.handleSubmit}
         >
           <h1 className="text-2xl text-gray-500 mb-5 font-bold">Checkout</h1>
+          {error && <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700" role="alert">{error}</p>}
           <div className="relative z-0 w-full mb-5 group">
             <input
               type="text"
@@ -129,6 +205,8 @@ export default function Checkout() {
               type="tel"
               name="phone"
               id="phone"
+              inputMode="numeric"
+              maxLength="10"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.phone}
@@ -139,7 +217,7 @@ export default function Checkout() {
               htmlFor="phone"
               className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-green-600 peer-focus:dark:text-green-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
             >
-              Phone Number*
+              Phone Number (+91)*
             </label>
             {formik.errors.phone && formik.touched.phone && (
               <span className="text-red-600 font-light text-sm">

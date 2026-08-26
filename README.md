@@ -50,6 +50,22 @@ To run the project locally:
 3. Start the development server using `npm run dev` or `yarn dev`
 4. Open the application in your browser at `http://localhost:5173/`
 
+### Local PHP API and MySQL database
+
+Install PHP 8.1+ with the `pdo_mysql` extension and MySQL (XAMPP is fine). The API uses the MySQL database named `3d-prints`; JSON files are no longer used for application data.
+
+1. Open phpMyAdmin and import `backend/schema.sql`. This creates the database, tables, starter products, and one persisted demo order (`#PF-DEMO1`) for `demo@printforge.in` (password: `Demo@123`).
+2. Copy `backend/.env.example` to `backend/.env` and set your MySQL credentials. If you use XAMPP defaults, `DB_USER=root` and an empty `DB_PASSWORD` usually work.
+3. Start both Vite and the PHP API from the project root:
+
+```bash
+npm run dev
+```
+
+The frontend runs at `http://localhost:5173`, the API runs at `http://localhost:8000`, and the API reads `DB_*` environment variables. The frontend defaults to `http://localhost:8000/api/v1`; set `VITE_API_URL` in `.env` to the hosted API URL when the domain is ready.
+
+Health check: `http://localhost:8000/api/v1/health`
+
 ## Video Demo
 
 https://github.com/user-attachments/assets/8c5d7dd3-3130-482c-a7d7-0d9b690827aa

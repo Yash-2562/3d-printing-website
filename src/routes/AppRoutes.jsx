@@ -1,37 +1,44 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import '../App.css';
 import CustomerLayout from '../layouts/CustomerLayout/CustomerLayout';
-import Login from '../pages/customer/Login/Login';
-import Register from '../pages/customer/Register/Register';
-import NotFound from '../pages/customer/NotFound/NotFound';
-import AuthContextProvider from '../context/Auth/Auth';
 import Home from '../pages/customer/Home/Home';
+import AuthContextProvider from '../context/Auth/Auth';
 import ProtectedRoute from '../pages/customer/ProtectedRoute/ProtectedRoute';
-import ProductDetails from '../pages/customer/ProductDetails/ProductDetails';
-import Cart from '../pages/customer/Cart/Cart';
 import CartContextProvider from '../context/Cart/Cart';
 import WishlistContextProvider from '../context/Wishlist/Wishlist';
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import ForgotPassword from '../pages/customer/ForgotPassword/ForgotPassword';
-import ResetPassword from '../pages/customer/ResetPassword/ResetPassword';
-import VerifyCode from '../pages/customer/VerifyCode/VerifyCode';
-import Checkout from '../pages/customer/Checkout/Checkout';
-import Wishlist from '../pages/customer/Wishlist/Wishlist';
-import Brands from '../pages/customer/Brands/Brands';
-import Categories from '../pages/customer/Categories/Categories';
 import ProductsContextProvider from '../context/Products/Products';
-import Search from '../pages/customer/Search/Search';
 import RedirectIfAuthenticated from '../components/common/RedirectIfAuthenticated/RedirectIfAuthenticated';
-import Profile from '../pages/customer/Profile/Profile';
-import Shop from '../pages/customer/Shop/Shop';
-import CustomOrder from '../pages/customer/Shop/Customorder';
+import AdminRoutes from '../admin/AdminRoutes';
+
+const Login = lazy(() => import('../pages/customer/Login/Login'));
+const Register = lazy(() => import('../pages/customer/Register/Register'));
+const NotFound = lazy(() => import('../pages/customer/NotFound/NotFound'));
+const ProductDetails = lazy(() => import('../pages/customer/ProductDetails/ProductDetails'));
+const Cart = lazy(() => import('../pages/customer/Cart/Cart'));
+const ForgotPassword = lazy(() => import('../pages/customer/ForgotPassword/ForgotPassword'));
+const ResetPassword = lazy(() => import('../pages/customer/ResetPassword/ResetPassword'));
+const VerifyCode = lazy(() => import('../pages/customer/VerifyCode/VerifyCode'));
+const Checkout = lazy(() => import('../pages/customer/Checkout/Checkout'));
+const Wishlist = lazy(() => import('../pages/customer/Wishlist/Wishlist'));
+const Brands = lazy(() => import('../pages/customer/Brands/Brands'));
+const Categories = lazy(() => import('../pages/customer/Categories/Categories'));
+const Search = lazy(() => import('../pages/customer/Search/Search'));
+const Profile = lazy(() => import('../pages/customer/Profile/Profile'));
+const Orders = lazy(() => import('../pages/customer/Orders/Orders'));
+const Shop = lazy(() => import('../pages/customer/Shop/Shop'));
+const CustomOrder = lazy(() => import('../pages/customer/Shop/Customorder'));
+
+const queryClient = new QueryClient();
 
 function App() {
-  const queryClient = new QueryClient();
-
   const router = createBrowserRouter([
+    {
+      path: '/admin/*',
+      element: <AdminRoutes />,
+    },
     {
       path: '',
       element: <CustomerLayout />,
@@ -149,6 +156,14 @@ function App() {
             </ProtectedRoute>
           ),
         },
+        {
+          path: 'orders',
+          element: (
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          ),
+        },
         { path: '*', element: <NotFound /> },
       ],
     },
@@ -161,7 +176,15 @@ function App() {
             <ProductsContextProvider>
               <Toaster />
               {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-              <RouterProvider router={router} />
+              <Suspense
+                fallback={
+                  <div className="flex min-h-[40vh] items-center justify-center text-sm text-gray-500">
+                    Loading...
+                  </div>
+                }
+              >
+                <RouterProvider router={router} />
+              </Suspense>
             </ProductsContextProvider>
           </QueryClientProvider>
         </WishlistContextProvider>

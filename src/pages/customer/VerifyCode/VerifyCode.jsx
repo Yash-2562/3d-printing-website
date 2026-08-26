@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import axios from 'axios';
+import apiClient from '../../../lib/api';
 import * as Yup from 'yup';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,8 +20,8 @@ export default function VerifyCode() {
   function handleResetCode(data) {
     setIsLoading(true);
 
-    axios
-      .post('https://ecommerce.routemisr.com/api/v1/auth/verifyResetCode', data)
+    apiClient
+      .post('/auth/verifyResetCode', data)
       .then((data) => {
         setErr(null);
         setIsLoading(false);

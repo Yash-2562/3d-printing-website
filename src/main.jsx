@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client';
 import App from './routes/AppRoutes.jsx';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './index.css';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

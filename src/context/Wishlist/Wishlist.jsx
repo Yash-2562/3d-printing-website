@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { createContext, useContext } from 'react';
+import apiClient from '../../lib/api';
+import { createContext, useCallback, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { authContext } from '../Auth/Auth';
 
@@ -11,7 +11,7 @@ export default function WishlistContextProvider(props) {
   const headers = {
     token: userToken,
   };
-  const URL = 'https://ecommerce.routemisr.com/api/v1/wishlist';
+  const URL = '/wishlist';
 
   function addToWishlist(id) {
     const data = {
@@ -25,7 +25,7 @@ export default function WishlistContextProvider(props) {
       data: data,
     };
     return toast.promise(
-      axios(config)
+      apiClient(config)
         .then((response) => response.data)
         .catch((error) => {
           throw error;
@@ -46,7 +46,7 @@ export default function WishlistContextProvider(props) {
     };
 
     return toast.promise(
-      axios(config)
+      apiClient(config)
         .then((response) => response.data)
         .catch((error) => {
           throw error;
@@ -59,19 +59,19 @@ export default function WishlistContextProvider(props) {
     );
   }
 
-  function getWishlist() {
+  const getWishlist = useCallback(() => {
     let config = {
       method: 'get',
       url: URL,
-      headers: headers,
+      headers: { token: userToken },
     };
 
-    return axios(config)
+    return apiClient(config)
       .then((response) => response.data.data)
       .catch((error) => {
         throw error;
       });
-  }
+  }, [userToken]);
 
   return (
     <wishlistContext.Provider

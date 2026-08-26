@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { useEffect } from 'react';
+import apiClient from '../../../lib/api';
 import Slider from 'react-slick';
 import Spinner from '../Spinner/Spinner';
 import { motion } from 'framer-motion';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 export default function CategorySlider() {
   const settings = {
@@ -51,12 +52,8 @@ export default function CategorySlider() {
   });
 
   function getCategories() {
-    return axios.get('https://ecommerce.routemisr.com/api/v1/categories');
+    return apiClient.get('/categories');
   }
-
-  useEffect(() => {
-    getCategories();
-  }, []);
 
   return (
     <div className="mx-auto my-10 w-full max-w-7xl overflow-hidden px-4 sm:px-6 lg:px-8">
@@ -74,6 +71,9 @@ export default function CategorySlider() {
                 transition={{ duration: 0.5, delay: index * 0.07 }}
               >
                 <img
+                  width="640"
+                  height="640"
+                  loading="lazy"
                   className="rounded-lg hover:shadow-green-300 transition-shadow shadow-md object-cover object-top w-full h-80"
                   src={category.image}
                   alt={category.name}

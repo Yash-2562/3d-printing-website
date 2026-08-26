@@ -417,7 +417,7 @@ export default function Cart() {
                           onClick={() =>
                             handleUpdateProductQuantity(item.product._id, item.count + 1)
                           }
-                          disabled={isUpdating}
+                          disabled={isUpdating || item.count >= Number(item.product.quantity || 0)}
                           className="inline-flex items-center justify-center h-7 w-7 text-gray-600 bg-white border border-gray-300 rounded-full hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                           <i className="fa-solid fa-plus text-[10px]" />

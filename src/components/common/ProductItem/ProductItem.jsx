@@ -43,6 +43,8 @@ export default function ProductItem({ product, isWished, handleWishlist }) {
               <img
                 src={product.imageCover}
                 alt={product.title}
+                width="400"
+                height="400"
                 loading="lazy"
                 className="
                   h-full

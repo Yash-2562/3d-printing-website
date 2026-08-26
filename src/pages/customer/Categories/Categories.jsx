@@ -1,5 +1,4 @@
 // import { useEffect } from 'react';
-// import axios from 'axios';
 // import Spinner from '../../../components/common/Spinner/Spinner';
 // import { useQuery } from '@tanstack/react-query';
 // import { Link } from 'react-router-dom';
@@ -13,7 +12,6 @@
 
 //   async function getCategories() {
 //     return axios
-//       .get('https://ecommerce.routemisr.com/api/v1/categories')
 //       .then((response) => response.data.data)
 //       .catch((error) => {
 //         throw error;
@@ -62,7 +60,7 @@
 //   );
 // }
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../../lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 
@@ -90,8 +88,8 @@ export default function Categories() {
   });
 
   async function getCategories() {
-    return axios
-      .get('https://ecommerce.routemisr.com/api/v1/categories')
+    return apiClient
+      .get('/categories')
       .then((response) => response.data.data)
       .catch((error) => {
         throw error;

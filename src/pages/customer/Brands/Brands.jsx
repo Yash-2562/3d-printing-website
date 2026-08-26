@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../../lib/api';
 import Spinner from '../../../components/common/Spinner/Spinner';
 import { useQuery } from '@tanstack/react-query';
 
@@ -11,9 +11,9 @@ export default function Brands() {
   });
 
   async function getBrands() {
-    const URL = 'https://ecommerce.routemisr.com/api/v1/brands';
+    const URL = '/brands';
 
-    return axios
+    return apiClient
       .get(URL)
       .then((response) => response.data.data)
       .catch((error) => {

@@ -30,10 +30,10 @@
 //   );
 // }
 
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 import { authContext } from '../../../context/Auth/Auth';
+import apiClient from '../../../lib/api';
 
 /**
  * PocketForm Profile page
@@ -54,26 +54,43 @@ import { authContext } from '../../../context/Auth/Auth';
  */
 
 export default function Profile() {
-  const { userToken, setUserToken } = useContext(authContext);
+  const { setUserToken } = useContext(authContext);
+  const [profile, setProfile] = useState({ name: '', email: '', phone: '', address: '' });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const { displayName, email } = useMemo(() => {
-    try {
-      const decoded = jwtDecode(userToken);
-      const fullEmail = decoded?.email || '';
-      const namePart = fullEmail.split('@')[0] || 'there';
-      return { displayName: namePart, email: fullEmail };
-    } catch {
-      return { displayName: 'there', email: '' };
-    }
-  }, [userToken]);
+  useEffect(() => {
+    apiClient.get('/profile').then(({ data }) => {
+      setProfile(data.data);
+      setIsLoading(false);
+    }).catch(() => setIsLoading(false));
+  }, []);
+
+  function updateField(event) {
+    setProfile((current) => ({ ...current, [event.target.name]: event.target.value }));
+  }
+
+  function saveProfile(event) {
+    event.preventDefault();
+    setIsSaving(true);
+    setMessage('');
+    apiClient.put('/profile', profile).then(({ data }) => {
+      setProfile(data.data);
+      setMessage(data.message);
+    }).catch((error) => {
+      setMessage(error.response?.data?.message || 'Unable to update profile');
+    }).finally(() => setIsSaving(false));
+  }
 
   function logout() {
     setUserToken(null);
     localStorage.removeItem('authToken');
   }
 
+  const displayName = profile.name || 'Your profile';
   const quickLinks = [
-    { to: '/', label: 'Orders', icon: 'fa-box-open' },
+    { to: '/orders', label: 'Orders', icon: 'fa-box-open' },
     { to: '/wishlist', label: 'Wishlist', icon: 'fa-heart' },
     { to: '/cart', label: 'Cart', icon: 'fa-cart-shopping' },
     { to: '/categories', label: 'Categories', icon: 'fa-list' },
@@ -102,11 +119,29 @@ export default function Profile() {
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
               {displayName}
             </h2>
-            {email && (
-              <p className="text-sm text-gray-500 truncate">{email}</p>
+            {profile.email && (
+              <p className="text-sm text-gray-500 truncate">{profile.email}</p>
             )}
           </div>
         </div>
+
+        <form onSubmit={saveProfile} className="mt-6 border-t border-gray-100 pt-6 space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">Personal details</h2>
+          {isLoading ? <p className="text-sm text-gray-500">Loading profile...</p> : (
+            <>
+              <input name="name" value={profile.name} onChange={updateField} required minLength="3" placeholder="Full name" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none" />
+              <div className="flex items-center rounded-lg border border-gray-300 focus-within:border-green-600">
+                <span className="border-r border-gray-200 px-3 text-sm text-gray-500">+91</span>
+                <input name="phone" value={profile.phone} onChange={updateField} required pattern="[6-9][0-9]{9}" inputMode="numeric" maxLength="10" placeholder="10-digit mobile number" className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none" />
+              </div>
+              <textarea name="address" value={profile.address || ''} onChange={updateField} rows="3" placeholder="Delivery address" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none" />
+              <button type="submit" disabled={isSaving} className="rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-800 disabled:opacity-60">
+                {isSaving ? 'Saving...' : 'Update profile'}
+              </button>
+              {message && <p className="text-sm text-green-700">{message}</p>}
+            </>
+          )}
+        </form>
 
         {/* quick links */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-6">

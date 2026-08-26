@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from '../../lib/api';
 import { createContext, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { authContext } from '../Auth/Auth';
@@ -11,7 +11,7 @@ export default function CartContextProvider(props) {
   const headers = {
     token: userToken,
   };
-  const URL = 'https://ecommerce.routemisr.com/api/v1/cart';
+  const URL = '/cart';
 
   function getProducts() {
     const config = {
@@ -20,7 +20,7 @@ export default function CartContextProvider(props) {
       headers: headers,
     };
 
-    return axios(config)
+    return apiClient(config)
       .then((response) => response.data.data)
       .catch((error) => {
         throw error;
@@ -38,7 +38,7 @@ export default function CartContextProvider(props) {
     };
 
     return toast.promise(
-      axios(config)
+      apiClient(config)
         .then((response) => response.data)
         .catch((error) => {
           throw error;
@@ -59,7 +59,7 @@ export default function CartContextProvider(props) {
     };
 
     return toast.promise(
-      axios(config)
+      apiClient(config)
         .then((response) => response.data)
         .catch((error) => {
           throw error;
@@ -83,7 +83,7 @@ export default function CartContextProvider(props) {
     };
 
     return toast.promise(
-      axios(config)
+      apiClient(config)
         .then((response) => response.data)
         .catch((error) => {
           throw error;
@@ -103,7 +103,7 @@ export default function CartContextProvider(props) {
       headers: headers,
     };
 
-    return axios
+    return apiClient
       .request(config)
       .then((response) => response.data)
       .catch((error) => {

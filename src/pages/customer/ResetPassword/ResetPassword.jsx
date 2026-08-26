@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import axios from 'axios';
+import apiClient from '../../../lib/api';
 import * as Yup from 'yup';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -22,8 +22,8 @@ export default function ResetPassword() {
 
   function handleRegister(data) {
     setIsLoading(true);
-    axios
-      .put('https://ecommerce.routemisr.com/api/v1/auth/resetPassword', data)
+    apiClient
+      .put('/auth/resetPassword', data)
       .then((res) => {
         setErr(null);
         toast.success('Password has been reset successfully');
