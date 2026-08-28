@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import apiClient from '../../../lib/api';
 import * as Yup from 'yup';
 import { useContext, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { cartContext } from '../../../context/Cart/Cart';
 import { authContext } from '../../../context/Auth/Auth';
@@ -29,7 +29,6 @@ export default function Checkout() {
   const [payment, setPayment] = useState(null);
   const [error, setError] = useState('');
   const { id } = useParams();
-  const navigate = useNavigate();
   const { emptyCart } = useContext(cartContext);
   const { userToken } = useContext(authContext);
 
@@ -54,9 +53,6 @@ export default function Checkout() {
 
     apiClient.request(config).then(async (response) => {
       const session = response.data;
-      if (!session || typeof session !== 'object') {
-        throw new Error('The checkout API returned an invalid response. Please try again.');
-      }
       if (!session.payment?.keyId || !session.payment?.razorpayOrderId) {
         throw new Error(session.message || 'Unable to create checkout session. Please try again.');
       }
@@ -74,15 +70,7 @@ export default function Checkout() {
           try {
             const verification = await apiClient.post('/orders/payment-verify', { orderId: session.orderId, ...result });
             await emptyCart();
-            formik.resetForm();
-            setPayment(null);
-            navigate('/orders', {
-              replace: true,
-              state: {
-                orderId: session.orderId,
-                payment: verification.data.payment,
-              },
-            });
+            setPayment(verification.data.payment);
           } catch (requestError) {
             setError(requestError.response?.data?.message || 'Payment verification failed. Please contact support.');
           } finally {
@@ -137,7 +125,7 @@ export default function Checkout() {
               <i className="fa-solid fa-circle-check mt-1 text-xl text-green-700" />
               <div>
                 <h1 className="text-lg font-bold">Payment successful</h1>
-                <p className="mt-1 text-sm">Your payment is verified in test mode. Your order is waiting for admin confirmation.</p>
+                <p className="mt-1 text-sm">Your order is confirmed in test mode. The admin payment ledger has been updated.</p>
                 <dl className="mt-4 space-y-1 text-sm">
                   <div className="flex justify-between gap-4"><dt>Gateway</dt><dd className="font-semibold">Razorpay test mode</dd></div>
                   <div className="flex justify-between gap-4"><dt>Order ID</dt><dd className="font-mono">{payment.razorpayOrderId}</dd></div>

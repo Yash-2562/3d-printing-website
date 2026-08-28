@@ -7,8 +7,10 @@ function configureHttp(): void
 {
     header('Content-Type: application/json; charset=utf-8');
     $origin = rtrim($_SERVER['HTTP_ORIGIN'] ?? '', '/');
-    header('Access-Control-Allow-Origin: ' . ($origin === FRONTEND_URL ? $origin : FRONTEND_URL));
-    header('Vary: Origin');
+    if ($origin !== '' && in_array($origin, FRONTEND_URLS, true)) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+        header('Vary: Origin');
+    }
     header('Access-Control-Allow-Headers: Content-Type, token, Authorization, ngrok-skip-browser-warning');
     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
     header('Access-Control-Max-Age: 86400');

@@ -24,6 +24,10 @@ define('APP_KEY', getenv('APP_KEY') ?: 'local-development-key');
 define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID') ?: '');
 define('RAZORPAY_KEY_SECRET', getenv('RAZORPAY_KEY_SECRET') ?: '');
 define('FRONTEND_URL', rtrim(getenv('FRONTEND_URL') ?: 'http://localhost:5173', '/'));
+define('FRONTEND_URLS', array_values(array_filter(array_map(
+    static fn(string $origin): string => rtrim(trim($origin), '/'),
+    explode(',', getenv('FRONTEND_URLS') ?: FRONTEND_URL)
+))));
 define('MAIL_HOST', getenv('MAIL_HOST') ?: 'smtp.gmail.com');
 define('MAIL_PORT', getenv('MAIL_PORT') ?: '587');
 define('MAIL_USERNAME', getenv('MAIL_USERNAME') ?: '');
