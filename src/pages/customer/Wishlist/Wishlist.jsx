@@ -129,6 +129,7 @@ import { useContext, useEffect, useState } from 'react';
 import { wishlistContext } from '../../../context/Wishlist/Wishlist';
 import { cartContext } from '../../../context/Cart/Cart';
 import { Link } from 'react-router-dom';
+import ResolvedImage from '../../../components/common/ResolvedImage';
 
 /**
  * PocketForm Wishlist page
@@ -173,7 +174,15 @@ export default function Wishlist() {
   async function handleAddToCart(id) {
     if (cartState[id]) return;
     setCartState((prev) => ({ ...prev, [id]: 'loading' }));
-    await addProduct(id);
+    const result = await addProduct(id);
+    if (result === null) {
+      setCartState((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      return;
+    }
     setCartState((prev) => ({ ...prev, [id]: 'added' }));
     setTimeout(() => {
       setCartState((prev) => {
@@ -299,7 +308,7 @@ export default function Wishlist() {
                     to={`/product/${product._id}`}
                     className="shrink-0 w-16 h-16 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center"
                   >
-                    <img
+                    <ResolvedImage
                       src={product.imageCover}
                       className="w-full h-full object-contain p-1.5"
                       alt={product.title}

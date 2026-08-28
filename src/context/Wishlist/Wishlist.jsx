@@ -13,7 +13,14 @@ export default function WishlistContextProvider(props) {
   };
   const URL = '/wishlist';
 
+  function requireAuthentication() {
+    if (userToken) return true;
+    toast.error('Please log in to use your wishlist.');
+    return false;
+  }
+
   function addToWishlist(id) {
+    if (!requireAuthentication()) return Promise.resolve(null);
     const data = {
       productId: id,
     };
@@ -39,6 +46,7 @@ export default function WishlistContextProvider(props) {
   }
 
   function deleteWishlistItem(id) {
+    if (!requireAuthentication()) return Promise.resolve(null);
     const config = {
       method: 'delete',
       url: `${URL}/${id}`,
@@ -60,6 +68,7 @@ export default function WishlistContextProvider(props) {
   }
 
   const getWishlist = useCallback(() => {
+    if (!userToken) return Promise.resolve([]);
     let config = {
       method: 'get',
       url: URL,

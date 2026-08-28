@@ -136,6 +136,9 @@ import { cartContext } from '../../../context/Cart/Cart.jsx';
 import { productsContext } from '../../../context/Products/Products.jsx';
 import { wishlistContext } from '../../../context/Wishlist/Wishlist.jsx';
 import { motion } from 'framer-motion';
+import ResolvedImage from '../../../components/common/ResolvedImage.jsx';
+
+const MotionResolvedImage = motion(ResolvedImage);
 
 export default function ProductDetails() {
   const { addProduct } = useContext(cartContext);
@@ -194,10 +197,12 @@ export default function ProductDetails() {
     setIsWishlistUpdating(true);
     try {
       if (isWishlisted) {
-        await deleteWishlistItem(ProdDetails.id);
+        const result = await deleteWishlistItem(ProdDetails.id);
+        if (result === null) return;
         setIsWishlisted(false);
       } else {
-        await addToWishlist(ProdDetails.id);
+        const result = await addToWishlist(ProdDetails.id);
+        if (result === null) return;
         setIsWishlisted(true);
       }
     } finally {
@@ -405,7 +410,7 @@ export default function ProductDetails() {
                             className="flex h-[390px] items-center justify-center sm:h-[470px]"
                           >
 
-                            <motion.img
+                            <MotionResolvedImage
                               src={img}
                               alt={`${ProdDetails.title || 'Product'} image ${
                                 index + 1
@@ -547,7 +552,7 @@ export default function ProductDetails() {
                         }`}
                       >
 
-                        <img
+                        <ResolvedImage
                           src={img}
                           alt={`Thumbnail ${index + 1}`}
                           className="h-full w-full object-contain"

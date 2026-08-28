@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../../lib/api';
 import { productsContext } from '../../../context/Products/Products';
+import { wishlistContext } from '../../../context/Wishlist/Wishlist';
+import ResolvedImage from '../../../components/common/ResolvedImage';
 import pnhtImage from '../../../assets/de1.png';
 
 const categoryIcons = ['fa-cube', 'fa-gift', 'fa-star', 'fa-house', 'fa-print'];
@@ -101,6 +103,7 @@ const demoProducts = [
 
 export default function Shop() {
   const { data = [] } = useContext(productsContext);
+  const { getWishlist, addToWishlist, deleteWishlistItem } = useContext(wishlistContext);
   const { data: catalogCategories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: () => apiClient.get('/categories').then(({ data: response }) => response.data),
@@ -121,6 +124,24 @@ export default function Shop() {
   const [sort, setSort] = useState('featured');
   const [search, setSearch] = useState('');
   const [wishlist, setWishlist] = useState([]);
+
+  const getProductId = (product) => product._id || product.id;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getWishlist().then((items) => {
+      if (isMounted) {
+        setWishlist(items.map((item) => getProductId(item)));
+      }
+    }).catch(() => {
+      if (isMounted) setWishlist([]);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [getWishlist]);
 
   useEffect(() => {
     if (requestedCategory && categories.some((category) => category.id === requestedCategory)) {
@@ -170,12 +191,20 @@ export default function Shop() {
     return result;
   }, [products, categories, activeCategory, search, sort]);
 
-  const toggleWishlist = (id) => {
-    setWishlist((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id]
-    );
+  const toggleWishlist = async (product) => {
+    const id = getProductId(product);
+    if (!id) return;
+
+    if (wishlist.includes(id)) {
+      const result = await deleteWishlistItem(id);
+      if (result === null) return;
+      setWishlist((current) => current.filter((item) => item !== id));
+      return;
+    }
+
+    const result = await addToWishlist(id);
+    if (result === null) return;
+    setWishlist((current) => [...current, id]);
   };
 
   return (
@@ -582,12 +611,12 @@ export default function Shop() {
 
                     <div className="relative aspect-square overflow-hidden bg-slate-100">
 
-                      <img
+                      <ResolvedImage
                         src={
                           product.image ||
-                          product.imageCover ||
-                          product.image_url ||
-                          product.thumbnail
+                            product.imageCover ||
+                            product.image_url ||
+                            product.thumbnail
                         }
                         alt={product.title}
                         className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
@@ -616,9 +645,9 @@ export default function Shop() {
                       {/* wishlist */}
 
                       <button
-                        onClick={() => toggleWishlist(product.id)}
+                        onClick={() => toggleWishlist(product)}
                         className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border shadow-sm backdrop-blur transition-all ${
-                          wishlist.includes(product.id)
+                          wishlist.includes(getProductId(product))
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-600'
                             : 'border-white/80 bg-white/85 text-slate-500 hover:bg-white hover:text-emerald-600'
                         }`}
@@ -626,7 +655,7 @@ export default function Shop() {
 
                         <i
                           className={`${
-                            wishlist.includes(product.id)
+                              wishlist.includes(getProductId(product))
                               ? 'fa-solid'
                               : 'fa-regular'
                           } fa-heart text-xs`}

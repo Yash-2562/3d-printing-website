@@ -13,7 +13,7 @@ function categoryImageFromRequest(string $fallback = ''): string
         $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
         $storedName = bin2hex(random_bytes(12)) . '.' . $extension;
         if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadDirectory . '/' . $storedName)) respond(['message' => 'Unable to save category image'], 500);
-        $image = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8000') . '/uploads/products/' . $storedName;
+        $image = '/uploads/products/' . $storedName;
     }
     return $image;
 }

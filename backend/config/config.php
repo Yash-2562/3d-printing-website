@@ -21,6 +21,7 @@ define('DB_NAME', getenv('DB_NAME') ?: '3d-prints');
 define('DB_USER', getenv('DB_USER') ?: 'root');
 define('DB_PASSWORD', getenv('DB_PASSWORD') ?: '');
 define('APP_KEY', getenv('APP_KEY') ?: 'local-development-key');
+define('PUBLIC_BACKEND_URL', rtrim(getenv('PUBLIC_BACKEND_URL') ?: '', '/'));
 define('RAZORPAY_KEY_ID', getenv('RAZORPAY_KEY_ID') ?: '');
 define('RAZORPAY_KEY_SECRET', getenv('RAZORPAY_KEY_SECRET') ?: '');
 define('FRONTEND_URL', rtrim(getenv('FRONTEND_URL') ?: 'http://localhost:5173', '/'));

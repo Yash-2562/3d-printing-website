@@ -21,7 +21,7 @@ function adminProducts(): void
             'madeToOrder' => (bool) $product['made_to_order'],
             'status' => $product['status'],
             'featured' => (bool) $product['featured'],
-            'imageCover' => $product['image_cover'],
+            'imageCover' => productImageUrl((string) $product['image_cover']),
             'createdAt' => $product['created_at'],
         ];
     }, $statement->fetchAll());
@@ -60,7 +60,7 @@ function createAdminProduct(): void
         $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
         $storedName = bin2hex(random_bytes(12)) . '.' . $extension;
         if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadDirectory . '/' . $storedName)) respond(['message' => 'Unable to save product image'], 500);
-        $imageCover = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8000') . '/uploads/products/' . $storedName;
+        $imageCover = '/uploads/products/' . $storedName;
     }
     if ($imageCover === '') respond(['message' => 'A main image or image URL is required'], 422);
 
@@ -114,7 +114,7 @@ function updateAdminProduct(string $productId): void
         $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
         $storedName = bin2hex(random_bytes(12)) . '.' . $extension;
         if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadDirectory . '/' . $storedName)) respond(['message' => 'Unable to save product image'], 500);
-        $imageCover = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8000') . '/uploads/products/' . $storedName;
+        $imageCover = '/uploads/products/' . $storedName;
     }
     if ($imageCover === '') respond(['message' => 'A main image or image URL is required'], 422);
     $statement = db()->prepare('UPDATE products SET title = ?, description = ?, price = ?, image_cover = ?, category_name = ?, sku = ?, material = ?, quantity = ?, low_stock_threshold = ?, made_to_order = ?, status = ?, featured = ? WHERE id = ?');

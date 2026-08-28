@@ -13,6 +13,12 @@ export default function CartContextProvider(props) {
   };
   const URL = '/cart';
 
+  function requireAuthentication() {
+    if (userToken) return true;
+    toast.error('Please log in to add items to your cart.');
+    return false;
+  }
+
   function getProducts() {
     const config = {
       method: 'get',
@@ -28,6 +34,7 @@ export default function CartContextProvider(props) {
   }
 
   function addProduct(id) {
+    if (!requireAuthentication()) return Promise.resolve(null);
     const data = { productId: id };
 
     const config = {
@@ -52,6 +59,7 @@ export default function CartContextProvider(props) {
   }
 
   function deleteProduct(id) {
+    if (!requireAuthentication()) return Promise.resolve(null);
     let config = {
       method: 'delete',
       url: `${URL}/${id}`,
@@ -73,6 +81,7 @@ export default function CartContextProvider(props) {
   }
 
   function updateProductQuantity(id, quantity) {
+    if (!requireAuthentication()) return Promise.resolve(null);
     let data = { count: quantity };
 
     let config = {
@@ -97,6 +106,7 @@ export default function CartContextProvider(props) {
   }
 
   function emptyCart() {
+    if (!requireAuthentication()) return Promise.resolve(null);
     let config = {
       method: 'delete',
       url: URL,

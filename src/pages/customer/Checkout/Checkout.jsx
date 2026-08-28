@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { cartContext } from '../../../context/Cart/Cart';
 import { authContext } from '../../../context/Auth/Auth';
+import { toast } from 'react-hot-toast';
 
 function loadRazorpay() {
   if (window.Razorpay) return Promise.resolve();
@@ -39,6 +40,10 @@ export default function Checkout() {
   };
 
   function handleCheckout(data) {
+    if (!userToken) {
+      toast.error('Please log in to place an order.');
+      return;
+    }
     setIsLoading(true);
     setError('');
 

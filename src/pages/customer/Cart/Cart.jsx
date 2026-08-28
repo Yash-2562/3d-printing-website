@@ -205,6 +205,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { cartContext } from '../../../context/Cart/Cart';
 import { Link } from 'react-router-dom';
+import ResolvedImage from '../../../components/common/ResolvedImage';
 
 /**
  * PocketForm Cart page
@@ -377,7 +378,7 @@ export default function Cart() {
                       to={`/product/${item.product._id}`}
                       className="shrink-0 w-16 h-16 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center"
                     >
-                      <img
+                      <ResolvedImage
                         src={item.product.imageCover}
                         className="w-full h-full object-contain p-1.5"
                         alt={item.product.title}

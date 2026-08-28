@@ -45,11 +45,7 @@ function App() {
       children: [
         {
           index: true,
-          element: (
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          ),
+          element: <Home />,
         },
         {
           path: 'login',
@@ -78,11 +74,7 @@ function App() {
         },
         {
           path: 'product/:id',
-          element: (
-            <ProtectedRoute>
-              <ProductDetails />
-            </ProtectedRoute>
-          ),
+          element: <ProductDetails />,
         },
         {
           path: '/checkout/:id',
@@ -110,27 +102,15 @@ function App() {
         },
         {
           path: 'brands',
-          element: (
-            <ProtectedRoute>
-              <Brands />
-            </ProtectedRoute>
-          ),
+          element: <Brands />,
         },
         {
           path: 'shop',
-          element: (
-            <ProtectedRoute>
-              <Shop />
-            </ProtectedRoute>
-          ),
+          element: <Shop />,
         },
         {
           path: 'about',
-          element: (
-            <ProtectedRoute>
-              <About />
-            </ProtectedRoute>
-          ),
+          element: <About />,
         },
         {
           path: 'custom-order',
@@ -142,11 +122,7 @@ function App() {
         },
         {
           path: 'search',
-          element: (
-            <ProtectedRoute>
-              <Search />
-            </ProtectedRoute>
-          ),
+          element: <Search />,
         },
         {
           path: 'profile',

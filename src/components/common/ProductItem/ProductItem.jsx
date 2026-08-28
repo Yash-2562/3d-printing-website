@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cartContext } from '../../../context/Cart/Cart';
 import { productsContext } from '../../../context/Products/Products';
+import ResolvedImage from '../ResolvedImage';
 
 export default function ProductItem({ product, isWished, handleWishlist }) {
   const { addProduct } = useContext(cartContext);
@@ -40,7 +41,7 @@ export default function ProductItem({ product, isWished, handleWishlist }) {
 
             <Link to={`product/${product._id}`}>
 
-              <img
+              <ResolvedImage
                 src={product.imageCover}
                 alt={product.title}
                 width="400"

@@ -162,7 +162,7 @@ import { useFormik } from 'formik';
 import apiClient from '../../../lib/api';
 import * as Yup from 'yup';
 import { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authContext } from '../../../context/Auth/Auth';
 import { Helmet } from 'react-helmet';
 
@@ -173,6 +173,7 @@ export default function Login() {
 
   const { setUserToken } = useContext(authContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const loginData = {
     email: 'test@gmail.com',
@@ -192,7 +193,8 @@ export default function Login() {
         setIsLoading(false);
 
         if (res.data.message === 'success') {
-          navigate('/');
+          const destination = location.state?.from;
+          navigate(destination ? `${destination.pathname}${destination.search || ''}` : '/', { replace: true });
         }
       })
       .catch((err) => {
