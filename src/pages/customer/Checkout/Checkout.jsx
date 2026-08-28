@@ -1,8 +1,8 @@
 import { useFormik } from 'formik';
 import apiClient from '../../../lib/api';
 import * as Yup from 'yup';
-import { useContext, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { cartContext } from '../../../context/Cart/Cart';
 import { authContext } from '../../../context/Auth/Auth';
@@ -30,8 +30,16 @@ export default function Checkout() {
   const [payment, setPayment] = useState(null);
   const [error, setError] = useState('');
   const { id } = useParams();
+  const navigate = useNavigate();
   const { emptyCart } = useContext(cartContext);
   const { userToken } = useContext(authContext);
+
+  useEffect(() => {
+    if (!payment && !error) return undefined;
+
+    const redirectTimer = window.setTimeout(() => navigate('/orders'), 10000);
+    return () => window.clearTimeout(redirectTimer);
+  }, [error, navigate, payment]);
 
   const buttonProps = {
     type: 'submit',

@@ -232,6 +232,7 @@ export default function Cart() {
   const [removingIds, setRemovingIds] = useState([]);
   const [updatingIds, setUpdatingIds] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [loadError, setLoadError] = useState('');
 
   const handleDeleteProduct = async (id) => {
     setRemovingIds((prev) => [...prev, id]);
@@ -251,8 +252,14 @@ export default function Cart() {
   };
 
   async function main() {
-    const data = await getProducts();
-    setData(data);
+    try {
+      const cart = await getProducts();
+      setData(cart);
+      setLoadError('');
+    } catch {
+      setData({ products: [], totalCartPrice: 0 });
+      setLoadError('Unable to load your cart. Please try again.');
+    }
   }
 
   useEffect(() => {
@@ -345,8 +352,7 @@ export default function Cart() {
               Wow, such empty!
             </h2>
             <p className="text-sm text-gray-500 mb-6 max-w-xs">
-              Your cart's waiting for its first mini. Browse the shop to get
-              printing.
+              {loadError || "Your cart's waiting for its first mini. Browse the shop to get printing."}
             </p>
             <Link
               to="/"
@@ -368,7 +374,7 @@ export default function Cart() {
                 const isUpdating = updatingIds.includes(item.product._id);
                 return (
                   <div
-                    key={item._id}
+                    key={item._id || item.product._id || `cart-item-${i}`}
                     className={`flex items-center gap-3 sm:gap-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-3 sm:p-4 ${
                       isRemoving ? 'pf-row-exit' : 'pf-row-enter'
                     }`}

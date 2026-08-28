@@ -29,6 +29,19 @@ SelectField.propTypes = { label: PropTypes.string.isRequired, options: PropTypes
 export function DataTable({ headers, children }) { return <div className="panel table-panel"><div className="table-wrap"><table><thead><tr>{headers.map((header) => <th key={header}>{header}</th>)}</tr></thead><tbody>{children}</tbody></table></div></div>; }
 DataTable.propTypes = { headers: PropTypes.arrayOf(PropTypes.string).isRequired, children: PropTypes.node.isRequired };
 
+export const ADMIN_PAGE_SIZE = 20;
+
+export function Pagination({ currentPage, totalItems, onPageChange }) {
+  const totalPages = Math.max(1, Math.ceil(totalItems / ADMIN_PAGE_SIZE));
+  if (totalItems <= ADMIN_PAGE_SIZE) return null;
+  return <nav className="admin-pagination" aria-label="Pagination">
+    <button type="button" onClick={() => onPageChange(Math.max(1, currentPage - 1))} disabled={currentPage === 1} aria-label="Previous page"><i className="fa-solid fa-chevron-left" /></button>
+    {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => <button type="button" key={page} onClick={() => onPageChange(page)} aria-current={currentPage === page ? 'page' : undefined} className={currentPage === page ? 'active' : ''}>{page}</button>)}
+    <button type="button" onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} aria-label="Next page"><i className="fa-solid fa-chevron-right" /></button>
+  </nav>;
+}
+Pagination.propTypes = { currentPage: PropTypes.number.isRequired, totalItems: PropTypes.number.isRequired, onPageChange: PropTypes.func.isRequired };
+
 export function RowActions({ editPath, onEdit, onDelete }) { return <div className="admin-actions">{editPath && <Link className="row-action" to={editPath} aria-label="Edit"><i className="fa-solid fa-pen" /></Link>}{onEdit && <button type="button" className="row-action" onClick={onEdit} aria-label="Edit"><i className="fa-solid fa-pen" /></button>}{onDelete && <button type="button" className="row-action delete-action" onClick={onDelete} aria-label="Delete"><i className="fa-solid fa-trash" /></button>}</div>; }
 RowActions.propTypes = { editPath: PropTypes.string, onEdit: PropTypes.func, onDelete: PropTypes.func };
 

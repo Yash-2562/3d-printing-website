@@ -5,6 +5,7 @@ import {
   DataTable,
   Field,
   Page,
+  Pagination,
   SearchInput,
   StatusPill,
   Toolbar,
@@ -21,6 +22,7 @@ export default function CustomPrintRequests() {
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     apiClient
@@ -67,6 +69,7 @@ export default function CustomPrintRequests() {
         .includes(query.toLowerCase()) &&
       (!statusFilter || request.status === statusFilter),
   );
+  const pageRows = visible.slice((page - 1) * 20, page * 20);
 
   const handleAction = async (request, status) => {
     try {
@@ -151,15 +154,16 @@ export default function CustomPrintRequests() {
             'ACTIONS',
           ]}
         >
-          {visible.map((request) => (
+          {pageRows.map((request) => (
             <tr key={request.id}>
               <td>
                 <button
                   className="row-link"
                   onClick={() => setSelected(request)}
                 >
-                  {request.id}
+                  <span>CO · {request.id}</span>
                 </button>
+                <small className="table-subtext">Order {request.order_id}</small>
               </td>
               <td>
                 {request.customer}
@@ -228,6 +232,7 @@ export default function CustomPrintRequests() {
           ))}
         </DataTable>
       )}
+      <Pagination currentPage={page} totalItems={visible.length} onPageChange={setPage} />
       {selected && (
         <div className="panel inline-form">
           <div className="panel-heading">
@@ -291,7 +296,7 @@ export default function CustomPrintRequests() {
             </div>
           )}
           <p className="muted">
-            Order: {selected.order_id} · Type: {selected.print_type} · Size:{' '}
+                CO · Order: {selected.order_id} · Type: {selected.print_type} · Size:{' '}
             {selected.size}
           </p>
           <Field label="Status">

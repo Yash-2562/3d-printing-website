@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+.admin-pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin:12px 0 24px}.admin-pagination button{min-width:32px;height:32px;border:1px solid #d9e4ed;border-radius:6px;background:#fff;color:#48627a;font-size:11px;font-weight:700;cursor:pointer}.admin-pagination button.active{background:#078c66;border-color:#078c66;color:#fff}.admin-pagination button:disabled{cursor:not-allowed;opacity:.4}
  .admin-modal-backdrop{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:#102a4366}.admin-modal{width:min(100%,720px);max-height:calc(100vh - 40px);overflow-y:auto;margin:0;box-shadow:0 24px 70px #102a4366}
  .row-action.delete-action{color:#d64545}.row-action.delete-action:hover{color:#b42323}
 

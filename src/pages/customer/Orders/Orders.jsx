@@ -113,7 +113,7 @@ export default function Orders() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="font-semibold text-gray-900">Order {order._id || order.id}</h2>
                     <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${order.customRequestId ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>
-                      {order.customRequestId ? 'Custom order' : 'Shop order'}
+                      {order.customRequestId ? 'CO · Custom order' : 'Shop order'}
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-gray-500">{order.createdAt || order.date}</p>

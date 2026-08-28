@@ -318,7 +318,6 @@ export default function MainSlider() {
                     alt={slide.title}
                     width="800"
                     height="600"
-                    fetchPriority="high"
                     className="h-[330px] w-full object-cover object-center sm:h-[400px] md:h-[430px]"
                   />
 

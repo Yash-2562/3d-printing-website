@@ -3,6 +3,7 @@ import {
   ActionMenu,
   DataTable,
   Page,
+  Pagination,
   SearchInput,
   StatusPill,
   Toolbar,
@@ -19,6 +20,7 @@ export default function Orders() {
   const [toDate, setToDate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     apiClient
@@ -27,6 +29,15 @@ export default function Orders() {
       .catch(() => setError('Unable to load orders.'))
       .finally(() => setIsLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!selected) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setSelected(null);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selected]);
 
   const visible = rows.filter((order) => {
     const matchesQuery = `${order.id} ${order.customer} ${order.email}`
@@ -39,6 +50,7 @@ export default function Orders() {
     const matchesToDate = !toDate || orderDate <= new Date(`${toDate}T23:59:59`);
     return matchesQuery && matchesPayment && matchesStatus && matchesFromDate && matchesToDate;
   });
+  const pageRows = visible.slice((page - 1) * 20, page * 20);
 
   const updateStatus = async (order, status) => {
     try {
@@ -61,10 +73,10 @@ export default function Orders() {
       <Toolbar>
         <SearchInput
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => { setQuery(event.target.value); setPage(1); }}
           placeholder="Search order ID or customer..."
         />
-        <select aria-label="Payment status" value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)}>
+        <select aria-label="Payment status" value={paymentFilter} onChange={(event) => { setPaymentFilter(event.target.value); setPage(1); }}>
           <option value="">All payment statuses</option>
           <option value="PENDING">Pending</option>
           <option value="SUCCESSFUL">Successful</option>
@@ -74,7 +86,7 @@ export default function Orders() {
         <select
           aria-label="Order status"
           value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
+          onChange={(event) => { setStatusFilter(event.target.value); setPage(1); }}
         >
           <option value="">All order statuses</option>
           <option value="waiting_confirmation">Waiting for confirmation</option>
@@ -84,8 +96,8 @@ export default function Orders() {
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <input type="date" aria-label="From date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} />
-        <input type="date" aria-label="To date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
+        <input type="date" aria-label="From date" value={fromDate} onChange={(event) => { setFromDate(event.target.value); setPage(1); }} />
+        <input type="date" aria-label="To date" value={toDate} onChange={(event) => { setToDate(event.target.value); setPage(1); }} />
       </Toolbar>
       {error && (
         <p className="save-message" role="alert">
@@ -107,12 +119,15 @@ export default function Orders() {
             'ACTIONS',
           ]}
         >
-          {visible.map((order) => (
+          {pageRows.map((order) => (
             <tr key={order.id}>
               <td>
-                <button className="row-link" onClick={() => setSelected(order)}>
-                  {order.id}
-                </button>
+                <div>
+                  <button className="row-link" onClick={() => setSelected(order)}>
+                    {order.id}
+                  </button>
+                  {order.customRequestId && <small className="table-subtext">CO · Custom order</small>}
+                </div>
               </td>
               <td>
                 <strong>{order.customer}</strong>
@@ -147,11 +162,13 @@ export default function Orders() {
           ))}
         </DataTable>
       )}
+      <Pagination currentPage={page} totalItems={visible.length} onPageChange={setPage} />
       {selected && (
-        <div className="panel inline-form">
-          <div className="panel-heading">
+        <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
+          <div className="panel admin-modal" role="dialog" aria-modal="true" aria-labelledby="order-details-title">
+            <div className="panel-heading">
             <div>
-              <h2>Order details: {selected.id}</h2>
+              <h2 id="order-details-title">Order details: {selected.id}</h2>
               <p className="muted">
                 {selected.customer} · {selected.email}
               </p>
@@ -188,6 +205,7 @@ export default function Orders() {
               </p>
             </>
           )}
+          </div>
         </div>
       )}
     </Page>
