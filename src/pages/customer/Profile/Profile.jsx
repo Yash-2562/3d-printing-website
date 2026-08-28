@@ -93,7 +93,7 @@ export default function Profile() {
     { to: '/orders', label: 'Orders', icon: 'fa-box-open' },
     { to: '/wishlist', label: 'Wishlist', icon: 'fa-heart' },
     { to: '/cart', label: 'Cart', icon: 'fa-cart-shopping' },
-    { to: '/categories', label: 'Categories', icon: 'fa-list' },
+    { to: '/shop', label: 'Shop Minis', icon: 'fa-cubes' },
   ];
 
   return (

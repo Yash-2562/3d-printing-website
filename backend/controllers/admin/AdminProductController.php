@@ -28,6 +28,21 @@ function adminProducts(): void
     respond(['data' => $products, 'results' => count($products)]);
 }
 
+function deleteAdminProduct(string $productId): void
+{
+    $statement = db()->prepare('DELETE FROM products WHERE id = ?');
+    try {
+        $statement->execute([$productId]);
+    } catch (PDOException $error) {
+        if ((int) ($error->errorInfo[1] ?? 0) === 1451) {
+            respond(['message' => 'This product cannot be deleted because it is used by existing records'], 409);
+        }
+        throw $error;
+    }
+    if ($statement->rowCount() === 0) respond(['message' => 'Product not found'], 404);
+    respond(['message' => 'Product deleted']);
+}
+
 function createAdminProduct(): void
 {
     ensureCategoriesTable();
@@ -85,14 +100,25 @@ function updateAdminProductStock(string $productId): void
 
 function updateAdminProduct(string $productId): void
 {
-    $input = body();
+    $input = $_POST ?: body();
     $name = trim((string) ($input['name'] ?? ''));
     $description = trim((string) ($input['description'] ?? ''));
     $price = (float) ($input['price'] ?? 0);
     if ($name === '' || $description === '' || $price < 0) respond(['message' => 'Product name, description and a valid price are required'], 422);
     $status = strtoupper((string) ($input['status'] ?? 'ACTIVE')) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    $statement = db()->prepare('UPDATE products SET title = ?, description = ?, price = ?, category_name = ?, sku = ?, material = ?, quantity = ?, low_stock_threshold = ?, made_to_order = ?, status = ?, featured = ? WHERE id = ?');
-    $statement->execute([$name, $description, $price, trim((string) ($input['category'] ?? 'General')), trim((string) ($input['sku'] ?? '')), trim((string) ($input['material'] ?? 'PLA')), max(0, (int) ($input['stock'] ?? 0)), max(0, (int) ($input['threshold'] ?? 5)), filter_var($input['madeToOrder'] ?? false, FILTER_VALIDATE_BOOLEAN), $status, filter_var($input['featured'] ?? false, FILTER_VALIDATE_BOOLEAN), $productId]);
+    $imageCover = trim((string) ($input['imageCover'] ?? ''));
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        if (!str_starts_with((string) $_FILES['image']['type'], 'image/')) respond(['message' => 'Product image must be an image'], 422);
+        $uploadDirectory = __DIR__ . '/../../uploads/products';
+        if (!is_dir($uploadDirectory)) mkdir($uploadDirectory, 0775, true);
+        $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        $storedName = bin2hex(random_bytes(12)) . '.' . $extension;
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadDirectory . '/' . $storedName)) respond(['message' => 'Unable to save product image'], 500);
+        $imageCover = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8000') . '/uploads/products/' . $storedName;
+    }
+    if ($imageCover === '') respond(['message' => 'A main image or image URL is required'], 422);
+    $statement = db()->prepare('UPDATE products SET title = ?, description = ?, price = ?, image_cover = ?, category_name = ?, sku = ?, material = ?, quantity = ?, low_stock_threshold = ?, made_to_order = ?, status = ?, featured = ? WHERE id = ?');
+    $statement->execute([$name, $description, $price, $imageCover, trim((string) ($input['category'] ?? 'General')), trim((string) ($input['sku'] ?? '')), trim((string) ($input['material'] ?? 'PLA')), max(0, (int) ($input['stock'] ?? 0)), max(0, (int) ($input['threshold'] ?? 5)), filter_var($input['madeToOrder'] ?? false, FILTER_VALIDATE_BOOLEAN), $status, filter_var($input['featured'] ?? false, FILTER_VALIDATE_BOOLEAN), $productId]);
     $exists = db()->prepare('SELECT id FROM products WHERE id = ?');
     $exists->execute([$productId]);
     if (!$exists->fetchColumn()) respond(['message' => 'Product not found'], 404);

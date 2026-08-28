@@ -213,7 +213,7 @@ export default function ProductItem({ product, isWished, handleWishlist }) {
                   font-bold
                   text-gray-900
                 ">
-                  EGP {product.price}
+                 {product.price}
                 </p>
               </div>
 

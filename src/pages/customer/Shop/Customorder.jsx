@@ -1,6 +1,7 @@
 // import { useRef, useState } from 'react';
 // import { motion } from 'framer-motion';
 // import apiClient from '../../../lib/api';
+import loImage from '../../../assets/lo.png';
 
 // const printTypes = [
 //   {
@@ -1220,6 +1221,7 @@ export default function CustomOrder() {
 
         <section className="mb-10">
 
+          <div className="grid items-center gap-8 lg:grid-cols-[1fr_.8fr]">
           <motion.div
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1258,6 +1260,22 @@ export default function CustomOrder() {
             </p>
 
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="relative hidden overflow-hidden rounded-[28px] border border-emerald-100 bg-white shadow-xl shadow-emerald-900/10 sm:block"
+          >
+            <img
+              src={loImage}
+              alt="3D printer creating a custom model"
+              className="h-64 w-full object-cover lg:h-72"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" />
+            <p className="absolute bottom-4 left-5 text-sm font-bold text-white">From sketch to something real.</p>
+          </motion.div>
+          </div>
 
 
           {/* process */}

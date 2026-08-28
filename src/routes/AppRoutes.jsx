@@ -24,12 +24,11 @@ const VerifyCode = lazy(() => import('../pages/customer/VerifyCode/VerifyCode'))
 const Checkout = lazy(() => import('../pages/customer/Checkout/Checkout'));
 const Wishlist = lazy(() => import('../pages/customer/Wishlist/Wishlist'));
 const Brands = lazy(() => import('../pages/customer/Brands/Brands'));
-const Categories = lazy(() => import('../pages/customer/Categories/Categories'));
-const CategoryDetail = lazy(() => import('../pages/customer/CategoryDetail/CategoryDetail'));
 const Search = lazy(() => import('../pages/customer/Search/Search'));
 const Profile = lazy(() => import('../pages/customer/Profile/Profile'));
 const Orders = lazy(() => import('../pages/customer/Orders/Orders'));
 const Shop = lazy(() => import('../pages/customer/Shop/Shop'));
+const About = lazy(() => import('../pages/customer/About/About'));
 const CustomOrder = lazy(() => import('../pages/customer/Shop/Customorder'));
 
 const queryClient = new QueryClient();
@@ -118,26 +117,18 @@ function App() {
           ),
         },
         {
-          path: 'categories',
-          element: (
-            <ProtectedRoute>
-              <Categories />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: 'categories/:id',
-          element: (
-            <ProtectedRoute>
-              <CategoryDetail />
-            </ProtectedRoute>
-          ),
-        },
-        {
           path: 'shop',
           element: (
             <ProtectedRoute>
               <Shop />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'about',
+          element: (
+            <ProtectedRoute>
+              <About />
             </ProtectedRoute>
           ),
         },

@@ -1,40 +1,21 @@
-import { useContext, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '../../../lib/api';
 import { productsContext } from '../../../context/Products/Products';
+import pnhtImage from '../../../assets/de1.png';
 
-const categories = [
-  {
-    id: 'all',
-    label: 'All Categories',
-    icon: 'fa-cubes',
-  },
-  {
-    id: 'figures',
-    label: 'Nano-Banana Minis',
-    icon: 'fa-cube',
-  },
-  {
-    id: 'gifts',
-    label: '3D Printed Gifts',
-    icon: 'fa-gift',
-  },
-  {
-    id: 'collectibles',
-    label: 'Collectibles & Figurines',
-    icon: 'fa-star',
-  },
-  {
-    id: 'desk',
-    label: 'Home & Desk',
-    icon: 'fa-house',
-  },
-  {
-    id: 'custom-prints',
-    label: 'Custom Prints',
-    icon: 'fa-print',
-  },
-];
+const categoryIcons = ['fa-cube', 'fa-gift', 'fa-star', 'fa-house', 'fa-print'];
+
+const demoImageUrls = {
+  astronaut: 'https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=900&q=85',
+  couple: 'https://images.unsplash.com/photo-1582561833407-b95380302e9c?auto=format&fit=crop&w=900&q=85',
+  dragon: 'https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&w=900&q=85',
+  coffee: 'https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=900&q=85',
+  hero: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&w=900&q=85',
+  frame: 'https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=900&q=85',
+};
 
 const sortOptions = [
   { value: 'featured', label: 'Featured' },
@@ -46,6 +27,9 @@ const sortOptions = [
 const getCategoryName = (category) =>
   typeof category === 'string' ? category : category?.name || '';
 
+const getCategoryId = (category) =>
+  typeof category === 'string' ? '' : category?._id || '';
+
 const demoProducts = [
   {
     id: 1,
@@ -55,7 +39,7 @@ const demoProducts = [
     rating: 4.9,
     reviews: 124,
     category: 'figures',
-    image: '/images/astronaut.jpg',
+    image: demoImageUrls.astronaut,
     tag: 'Bestseller',
   },
   {
@@ -66,7 +50,7 @@ const demoProducts = [
     rating: 4.8,
     reviews: 87,
     category: 'gifts',
-    image: '/images/couple.jpg',
+    image: demoImageUrls.couple,
     tag: 'Popular',
   },
   {
@@ -77,7 +61,7 @@ const demoProducts = [
     rating: 4.9,
     reviews: 63,
     category: 'collectibles',
-    image: '/images/dragon.jpg',
+    image: demoImageUrls.dragon,
     tag: 'New',
   },
   {
@@ -88,7 +72,7 @@ const demoProducts = [
     rating: 4.7,
     reviews: 51,
     category: 'desk',
-    image: '/images/coffee.jpg',
+    image: demoImageUrls.coffee,
     tag: 'Desk Pick',
   },
   {
@@ -99,7 +83,7 @@ const demoProducts = [
     rating: 4.8,
     reviews: 72,
     category: 'figures',
-    image: '/images/hero.jpg',
+    image: demoImageUrls.hero,
     tag: 'Trending',
   },
   {
@@ -110,18 +94,39 @@ const demoProducts = [
     rating: 5,
     reviews: 42,
     category: 'gifts',
-    image: '/images/frame.jpg',
+    image: demoImageUrls.frame,
     tag: 'Gift Pick',
   },
 ];
 
 export default function Shop() {
   const { data = [] } = useContext(productsContext);
+  const { data: catalogCategories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => apiClient.get('/categories').then(({ data: response }) => response.data),
+  });
+  const [searchParams] = useSearchParams();
+  const requestedCategory = searchParams.get('category');
+  const categories = useMemo(() => [
+    { id: 'all', label: 'All Categories', icon: 'fa-cubes' },
+    ...catalogCategories.map((category, index) => ({
+      ...category,
+      id: category._id,
+      label: category.name,
+      icon: categoryIcons[index % categoryIcons.length],
+    })),
+  ], [catalogCategories]);
 
   const [activeCategory, setActiveCategory] = useState('all');
   const [sort, setSort] = useState('featured');
   const [search, setSearch] = useState('');
   const [wishlist, setWishlist] = useState([]);
+
+  useEffect(() => {
+    if (requestedCategory && categories.some((category) => category.id === requestedCategory)) {
+      setActiveCategory(requestedCategory);
+    }
+  }, [categories, requestedCategory]);
 
   /*
    * If your API already returns products, use them.
@@ -133,16 +138,16 @@ export default function Shop() {
     let result = [...products];
 
     if (activeCategory !== 'all') {
+      const selectedCategory = categories.find((category) => category.id === activeCategory);
       result = result.filter(
         (product) =>
-          getCategoryName(product.category).toLowerCase() ===
-          activeCategory.toLowerCase()
+          getCategoryId(product.category) === activeCategory ||
+          getCategoryName(product.category).toLowerCase() === selectedCategory?.name?.toLowerCase()
       );
     }
 
     if (search.trim()) {
       const query = search.toLowerCase().trim();
-
       result = result.filter((product) =>
         product.title?.toLowerCase().includes(query)
       );
@@ -163,7 +168,7 @@ export default function Shop() {
     }
 
     return result;
-  }, [products, activeCategory, search, sort]);
+  }, [products, categories, activeCategory, search, sort]);
 
   const toggleWishlist = (id) => {
     setWishlist((current) =>
@@ -208,7 +213,7 @@ export default function Shop() {
 
       <section className="relative">
 
-        <div className="mx-auto max-w-screen-xl px-4 pb-10 pt-12 sm:px-6 sm:pt-16 lg:pb-14">
+        <div className="mx-auto max-w-screen-xl px-4 pb-10 pt-5 sm:px-6 sm:pt-8 lg:pb-14">
 
           <div className="grid items-center gap-10 lg:grid-cols-[.9fr_1.1fr]">
 
@@ -337,7 +342,7 @@ export default function Shop() {
               <div className="absolute left-1/2 top-1/2 h-[250px] w-[250px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-emerald-500/10" />
 
 
-              {/* fake product sculpture */}
+              {/* featured product image */}
 
               <motion.div
                 animate={{
@@ -356,11 +361,11 @@ export default function Shop() {
                 }}
               >
 
-                <div className="flex h-32 w-32 items-center justify-center rounded-[35px] bg-emerald-500 shadow-[0_25px_40px_rgba(16,185,129,.25)]">
-
-                  <i className="fa-solid fa-cube text-6xl text-white/90" />
-
-                </div>
+                <img
+                  src={pnhtImage}
+                  alt="3D printer creating colorful miniature models"
+                  className="h-full w-full rounded-[45px] object-cover"
+                />
 
               </motion.div>
 

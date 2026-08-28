@@ -14,6 +14,9 @@ export default function Orders() {
   const [rows, setRows] = useState([]);
   const [selected, setSelected] = useState(null);
   const [statusFilter, setStatusFilter] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -29,7 +32,12 @@ export default function Orders() {
     const matchesQuery = `${order.id} ${order.customer} ${order.email}`
       .toLowerCase()
       .includes(query.toLowerCase());
-    return matchesQuery && (!statusFilter || order.status === statusFilter);
+    const orderDate = new Date(order.date);
+    const matchesPayment = !paymentFilter || (order.paymentStatus || 'PENDING') === paymentFilter;
+    const matchesStatus = !statusFilter || order.status === statusFilter;
+    const matchesFromDate = !fromDate || orderDate >= new Date(`${fromDate}T00:00:00`);
+    const matchesToDate = !toDate || orderDate <= new Date(`${toDate}T23:59:59`);
+    return matchesQuery && matchesPayment && matchesStatus && matchesFromDate && matchesToDate;
   });
 
   const updateStatus = async (order, status) => {
@@ -56,8 +64,12 @@ export default function Orders() {
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search order ID or customer..."
         />
-        <select aria-label="Payment status" disabled>
-          <option>Payment status</option>
+        <select aria-label="Payment status" value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value)}>
+          <option value="">All payment statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="SUCCESSFUL">Successful</option>
+          <option value="FAILED">Failed</option>
+          <option value="REFUNDED">Refunded</option>
         </select>
         <select
           aria-label="Order status"
@@ -72,8 +84,8 @@ export default function Orders() {
           <option value="delivered">Delivered</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <input type="date" aria-label="From date" disabled />
-        <input type="date" aria-label="To date" disabled />
+        <input type="date" aria-label="From date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} />
+        <input type="date" aria-label="To date" value={toDate} onChange={(event) => setToDate(event.target.value)} />
       </Toolbar>
       {error && (
         <p className="save-message" role="alert">

@@ -311,9 +311,17 @@ export default function Navbar() {
   function handleSearch(e) {
     if (e.key === 'Enter') {
       const q = e.target.value;
-      const filtered = data.filter((p) =>
+      const filtered = (data || []).filter((p) =>
         p.title.toLowerCase().includes(q.toLowerCase().trim())
       );
+
+      if (filtered.length === 0) {
+        setSearchRes(null);
+        navigate('/');
+        setMobileOpen(false);
+        return;
+      }
+
       setSearchRes(filtered);
       navigate('/search');
       setMobileOpen(false);
@@ -329,10 +337,10 @@ export default function Navbar() {
   const navLinks = userToken
     ? [
         { to: '/', label: 'Home', icon: 'fa-house' },
+        { to: 'about', label: 'About', icon: 'fa-circle-info' },
         { to: 'shop', label: 'Shop Minis', icon: 'fa-cubes' },
-        { to: 'categories', label: 'Our collections', icon: 'fa-seedling' },
         { to: 'custom-order', label: 'Custom Order', icon: 'fa-wand-magic-sparkles' },
-        { to: 'brands', label: 'Studios', icon: 'fa-tags' },
+        { to: 'brands', label: 'Brands', icon: 'fa-tags' },
       ]
     : [];
 

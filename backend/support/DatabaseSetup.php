@@ -6,6 +6,8 @@ require_once __DIR__ . '/../config/database.php';
 function ensureCategoriesTable(): void
 {
     db()->exec("CREATE TABLE IF NOT EXISTS categories (id VARCHAR(40) PRIMARY KEY, name VARCHAR(120) NOT NULL UNIQUE, slug VARCHAR(140) NOT NULL UNIQUE, description VARCHAR(500) NOT NULL DEFAULT '', image VARCHAR(500) NOT NULL DEFAULT '', status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE', created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB");
+    if ((int) db()->query('SELECT COUNT(*) FROM categories')->fetchColumn() > 0) return;
+
     $defaults = [
         ['category-1', 'Nano-Banana Minis', 'nano-banana-minis', 'Tiny viral figures, pocket-size models and cute miniatures.'],
         ['category-2', '3D Printed Gifts', '3d-printed-gifts', 'Personalized gifts, keychains, nameplates and photo lithophanes.'],

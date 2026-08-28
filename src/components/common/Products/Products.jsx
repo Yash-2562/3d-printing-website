@@ -4,6 +4,7 @@ import Spinner from '../Spinner/Spinner';
 import { wishlistContext } from '../../../context/Wishlist/Wishlist';
 import { productsContext } from '../../../context/Products/Products';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function Products() {
   const { data } = useContext(productsContext);
@@ -43,10 +44,11 @@ export default function Products() {
         </div>
 
         {data ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-            {data.map((product, index) => (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {data.slice(0, 10).map((product, index) => (
               <motion.div
                 key={product._id}
+                className={index >= 4 ? 'hidden lg:block' : index >= 2 ? 'hidden sm:block' : ''}
                 initial={{ opacity: 0, y: 24, scale: 0.98 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.12 }}
@@ -63,6 +65,17 @@ export default function Products() {
         ) : (
           <div className="w-full py-20">
             <Spinner />
+          </div>
+        )}
+
+        {data && (
+          <div className="mt-10 flex justify-center">
+            <Link
+              to="/shop#products"
+              className="rounded-full bg-gray-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-600"
+            >
+              More Products
+            </Link>
           </div>
         )}
       </div>

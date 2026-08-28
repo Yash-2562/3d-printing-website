@@ -696,11 +696,11 @@ export default function Footer() {
 
                   <div>
                     <p className="text-sm font-semibold text-white">
-                      You're on the list.
+                      You&apos;re on the list.
                     </p>
 
                     <p className="mt-0.5 text-[10px] text-gray-500">
-                      We'll keep the good stuff coming.
+                      We&apos;ll keep the good stuff coming.
                     </p>
                   </div>
 
@@ -758,7 +758,7 @@ export default function Footer() {
 
 
           {/* =================================================
-              MORE BY MAKER
+              BRAND NOTE
           ================================================== */}
 
           <div>
@@ -767,53 +767,13 @@ export default function Footer() {
 
               <span className="h-px w-5 bg-emerald-500" />
 
-              More by the maker
+              Made to Keep
 
             </h3>
 
-            <nav className="flex flex-col gap-2.5">
-
-              <a
-                href="https://mohamedemary.github.io/route-frontend/assignments/10-daniels/index.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex w-fit items-center gap-2 text-sm text-gray-500 transition-colors hover:text-emerald-400"
-              >
-                <span className="h-1 w-1 rounded-full bg-gray-700 transition-all group-hover:w-2 group-hover:bg-emerald-500" />
-                Daniels
-              </a>
-
-              <a
-                href="https://mohamedemary.github.io/route-frontend/assignments/07-devFolio/index.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex w-fit items-center gap-2 text-sm text-gray-500 transition-colors hover:text-emerald-400"
-              >
-                <span className="h-1 w-1 rounded-full bg-gray-700 transition-all group-hover:w-2 group-hover:bg-emerald-500" />
-                Devfolio
-              </a>
-
-              <a
-                href="https://game-over-ivory.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex w-fit items-center gap-2 text-sm text-gray-500 transition-colors hover:text-emerald-400"
-              >
-                <span className="h-1 w-1 rounded-full bg-gray-700 transition-all group-hover:w-2 group-hover:bg-emerald-500" />
-                Game Over
-              </a>
-
-              <a
-                href="https://todo-app-wine-tau.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex w-fit items-center gap-2 text-sm text-gray-500 transition-colors hover:text-emerald-400"
-              >
-                <span className="h-1 w-1 rounded-full bg-gray-700 transition-all group-hover:w-2 group-hover:bg-emerald-500" />
-                Todo App
-              </a>
-
-            </nav>
+            <p className="max-w-xs text-sm leading-6 text-gray-500">
+              Small prints, lasting memories, and a little more joy in every detail.
+            </p>
 
           </div>
 
@@ -867,15 +827,7 @@ export default function Footer() {
                     className="group flex w-fit items-center gap-3 text-sm text-gray-500 transition-colors hover:text-emerald-400"
                   >
                     <i className="fa-solid fa-tags fa-fw text-[11px] text-gray-700 transition-colors group-hover:text-emerald-500" />
-                    Studios
-                  </Link>
-
-                  <Link
-                    to="/categories"
-                    className="group flex w-fit items-center gap-3 text-sm text-gray-500 transition-colors hover:text-emerald-400"
-                  >
-                    <i className="fa-solid fa-list fa-fw text-[11px] text-gray-700 transition-colors group-hover:text-emerald-500" />
-                    Categories
+                    Brands
                   </Link>
 
                 </>
@@ -924,51 +876,42 @@ export default function Footer() {
             </h3>
 
 
-            <a
-              href="mailto:mohamed.ahmed.emary@gmail.com"
-              className="block w-fit break-all text-sm text-gray-500 transition-colors hover:text-emerald-400"
-            >
-              mohamed.ahmed.emary@gmail.com
-            </a>
+            <p className="mb-4 text-sm text-gray-500">
+              hello@pocketform.com
+            </p>
 
 
             {/* social buttons */}
 
             <div className="mt-5 flex items-center gap-2">
 
-              <a
-                href="https://linkedin.com/in/mohamedemary"
-                target="_blank"
-                rel="noopener noreferrer"
+              <span
                 aria-label="LinkedIn"
+                title="LinkedIn"
                 className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.025] text-gray-500 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
               >
                 <i className="fa-brands fa-linkedin fa-fw text-sm" />
-              </a>
+              </span>
 
-              <a
-                href="https://github.com/mohamedemary"
-                target="_blank"
-                rel="noopener noreferrer"
+              <span
                 aria-label="GitHub"
+                title="GitHub"
                 className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.025] text-gray-500 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
               >
                 <i className="fa-brands fa-github fa-fw text-sm" />
-              </a>
+              </span>
 
-              <a
-                href="mailto:mohamed.ahmed.emary@gmail.com"
+              <span
                 aria-label="Email"
+                title="Email"
                 className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.025] text-gray-500 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
               >
                 <i className="fa-regular fa-envelope fa-fw text-sm" />
-              </a>
+              </span>
 
-              <a
-                href="https://leetcode.com/Spark71"
-                target="_blank"
-                rel="noopener noreferrer"
+              <span
                 aria-label="LeetCode"
+                title="LeetCode"
                 className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.025] text-gray-500 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-400"
               >
 
@@ -984,7 +927,7 @@ export default function Footer() {
                   />
                 </svg>
 
-              </a>
+              </span>
 
             </div>
 

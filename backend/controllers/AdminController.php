@@ -16,8 +16,10 @@ require_once __DIR__ . '/admin/AdminCategoryController.php';
 function handleAdminRoutes(string $method, ?string $section, array $segments): void
 {
     if ($method === 'GET' && $section === 'summary') adminSummary();
+    if ($method === 'POST' && $section === 'products' && ($segments[3] ?? '') === 'edit' && isset($segments[2])) updateAdminProduct($segments[2]);
     if ($method === 'POST' && $section === 'products') createAdminProduct();
     if ($method === 'GET' && $section === 'products') adminProducts();
+    if ($method === 'DELETE' && $section === 'products' && isset($segments[2])) deleteAdminProduct($segments[2]);
     if ($method === 'GET' && $section === 'categories') adminCategories();
     if ($method === 'POST' && $section === 'categories' && isset($segments[2])) updateAdminCategory($segments[2]);
     if ($method === 'POST' && $section === 'categories') createAdminCategory();

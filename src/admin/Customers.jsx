@@ -8,7 +8,7 @@ export default function Customers() {
   const visible = rows.filter((customer) => `${customer.name} ${customer.email} ${customer.id}`.toLowerCase().includes(query.toLowerCase()));
   const handleAction = async (customer, action) => {
     if (action === 'delete') {
-      if (!window.confirm(`Delete the account for ${customer.name}? This also removes their orders and saved items.`)) return;
+      if (!window.confirm(`Delete the account for ${customer.name}? This also removes their orders and saved items. This action cannot be undone.`)) return;
       try {
         await apiClient.delete(`/admin/customers/${encodeURIComponent(customer.id)}`);
         setRows((current) => current.filter((row) => row.id !== customer.id));

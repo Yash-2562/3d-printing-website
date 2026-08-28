@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import img1 from '../../../assets/slider-image-1.jpeg';
-import img2 from '../../../assets/slider-image-2.jpeg';
-import img3 from '../../../assets/slider-image-3.jpeg';
+import img2 from '../../../assets/slider-image-3.jpeg';
+import img3 from '../../../assets/slider-image-15.jpeg';
 
 import { MotionConfig, motion } from 'framer-motion';
 
@@ -57,7 +57,7 @@ const cardReveal = {
 const slides = [
   {
     img: img1,
-    eyebrow: 'CUSTOM 3D PRINTING',
+    eyebrow: 'GIFT COLLECTION',
     title: 'Your imagination, made tangible.',
     description:
       'Turn your ideas, memories and designs into beautifully detailed pocket-size 3D prints.',
@@ -75,7 +75,7 @@ const slides = [
   },
   {
     img: img3,
-    eyebrow: 'GIFT COLLECTION',
+    eyebrow: 'CUSTOM 3D PRINTING',
     title: 'Make something worth keeping.',
     description:
       'Transform special moments into physical keepsakes designed to last.',
@@ -87,6 +87,14 @@ const slides = [
 export default function MainSlider() {
   const [active, setActive] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActive((current) => (current + 1) % slides.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   const slide = slides[active];
 
@@ -164,9 +172,9 @@ export default function MainSlider() {
                   <motion.span
                     key={index}
                     variants={wordReveal}
-                    className="inline-block origin-bottom"
+                    className="mr-[0.2em] inline-block origin-bottom last:mr-0"
                   >
-                    {word}{' '}
+                    {word}
                     {index === 1 && (
                       <br className="hidden sm:block" />
                     )}

@@ -4,8 +4,38 @@ import { DataTable, Page, RowActions, SearchInput, StatusPill, Toolbar } from '.
 
 export default function Products() {
   const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('ALL');
+  const [category, setCategory] = useState('ALL');
+  const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  useEffect(() => { apiClient.get('/admin/products').then(({ data }) => setProducts(data.data || [])).catch(() => setProducts([])); }, []);
-  const visible = products.filter((item) => `${item.name} ${item.id}`.toLowerCase().includes(query.toLowerCase()));
-  return <Page title="Products" description="Manage your catalogue, pricing, media and availability." action={<a className="primary-button" href="/admin/products/new"><i className="fa-solid fa-plus" /> Add product</a>}><Toolbar><SearchInput value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search product or SKU..." /><select aria-label="Product status"><option>All statuses</option><option>Active</option><option>Inactive</option></select><select aria-label="Product category"><option>All categories</option><option>Desk accessories</option><option>Customized gifts</option></select></Toolbar><DataTable headers={['PRODUCT', 'SKU', 'CATEGORY', 'MATERIAL', 'PRICE', 'STOCK', 'STATUS', 'FEATURED', 'CREATED', 'ACTIONS']}>{visible.map((item) => <tr key={item.id}><td><strong>{item.name}</strong></td><td>{item.id}</td><td>{item.category}</td><td>--</td><td><strong>₹{item.price.toLocaleString('en-IN')}</strong></td><td>{item.stock}</td><td><StatusPill value={item.status} /></td><td>{item.featured ? 'Yes' : 'No'}</td><td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : '--'}</td><td><RowActions editPath={`/admin/products/${item.id}/edit`} onDelete={() => window.confirm(`Delete ${item.name}?`)} /></td></tr>)}</DataTable></Page>;
+  const [message, setMessage] = useState('');
+  useEffect(() => {
+    Promise.all([apiClient.get('/admin/products'), apiClient.get('/admin/categories')])
+      .then(([productResponse, categoryResponse]) => {
+        setProducts(productResponse.data.data || []);
+        setCategories(categoryResponse.data.data || []);
+      })
+      .catch(() => setMessage('Unable to load products or categories.'));
+  }, []);
+  const visible = products.filter((item) => {
+    const matchesQuery = `${item.name} ${item.sku || ''}`.toLowerCase().includes(query.toLowerCase());
+    const matchesStatus = status === 'ALL' || item.status === status;
+    const matchesCategory = category === 'ALL' || item.category === category;
+    return matchesQuery && matchesStatus && matchesCategory;
+  });
+  const deleteProduct = async (item) => {
+    if (!window.confirm(`Delete ${item.name}? This action cannot be undone.`)) return;
+    try {
+      await apiClient.delete(`/admin/products/${encodeURIComponent(item.id)}`);
+      setProducts((current) => current.filter((product) => product.id !== item.id));
+      setMessage('Product deleted successfully.');
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Unable to delete product.');
+    }
+  };
+  return <Page title="Products" description="Manage your catalogue, pricing, media and availability." action={<a className="primary-button" href="/admin/products/new"><i className="fa-solid fa-plus" /> Add product</a>}>
+    {message && <p className="save-message" role="alert">{message}</p>}
+    <Toolbar><SearchInput value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search product or SKU..." /><select aria-label="Product status" value={status} onChange={(event) => setStatus(event.target.value)}><option value="ALL">All statuses</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option></select><select aria-label="Product category" value={category} onChange={(event) => setCategory(event.target.value)}><option value="ALL">All categories</option>{categories.map((item) => <option key={item.id || item._id} value={item.name}>{item.name}</option>)}</select></Toolbar>
+    <DataTable headers={['PRODUCT', 'SKU', 'CATEGORY', 'MATERIAL', 'PRICE', 'STOCK', 'STATUS', 'FEATURED', 'CREATED', 'ACTIONS']}>{visible.map((item) => <tr key={item.id}><td><strong>{item.name}</strong></td><td>{item.sku || item.id}</td><td>{item.category}</td><td>{item.material || '--'}</td><td><strong>₹{item.price.toLocaleString('en-IN')}</strong></td><td>{item.stock}</td><td><StatusPill value={item.status} /></td><td>{item.featured ? 'Yes' : 'No'}</td><td>{item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN') : '--'}</td><td><RowActions editPath={`/admin/products/${item.id}/edit`} onDelete={() => deleteProduct(item)} /></td></tr>)}</DataTable>
+  </Page>;
 }
