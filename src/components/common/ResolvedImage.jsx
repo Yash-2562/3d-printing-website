@@ -1,6 +1,23 @@
 import { forwardRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import apiClient, { isBackendUploadUrl, resolveImageUrl } from '../../lib/api';
+import apiClient, { resolveImageUrl } from '../../lib/api';
+
+function getUploadPath(imageUrl) {
+  if (!imageUrl) return '';
+
+  try {
+    const image = new URL(
+      imageUrl,
+      typeof window !== 'undefined' ? window.location.origin : undefined,
+    );
+
+    return image.pathname.startsWith('/uploads/')
+      ? `${image.pathname}${image.search}`
+      : '';
+  } catch {
+    return '';
+  }
+}
 
 const ResolvedImage = forwardRef(function ResolvedImage(
   { src, onError, ...props },
@@ -10,16 +27,19 @@ const ResolvedImage = forwardRef(function ResolvedImage(
 
   useEffect(() => {
     const resolvedSrc = resolveImageUrl(src);
+    const uploadPath = getUploadPath(src);
     setDisplaySrc(resolvedSrc);
 
-    if (!isBackendUploadUrl(src)) return undefined;
+    if (!uploadPath) return undefined;
 
     let active = true;
     let objectUrl = '';
 
     apiClient
-      .get(resolvedSrc, { responseType: 'blob' })
+      .get(uploadPath, { responseType: 'blob' })
       .then(({ data }) => {
+        if (!data.type.startsWith('image/')) throw new Error('Invalid image response');
+
         const nextObjectUrl = URL.createObjectURL(data);
 
         if (!active) {
@@ -31,7 +51,7 @@ const ResolvedImage = forwardRef(function ResolvedImage(
         setDisplaySrc(nextObjectUrl);
       })
       .catch(() => {
-        if (active) setDisplaySrc(resolvedSrc);
+        if (active) setDisplaySrc('');
       });
 
     return () => {
@@ -40,7 +60,9 @@ const ResolvedImage = forwardRef(function ResolvedImage(
     };
   }, [src]);
 
-  return <img {...props} ref={ref} src={displaySrc || ''} onError={onError} />;
+  if (!displaySrc) return null;
+
+  return <img {...props} ref={ref} src={displaySrc} onError={onError} />;
 });
 
 ResolvedImage.propTypes = {

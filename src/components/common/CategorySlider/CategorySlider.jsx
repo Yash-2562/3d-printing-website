@@ -60,6 +60,7 @@ import apiClient from '../../../lib/api';
 import Spinner from '../Spinner/Spinner';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import ResolvedImage from '../ResolvedImage';
 
 export default function CategorySlider() {
   const { data, isLoading } = useQuery({
@@ -171,7 +172,7 @@ export default function CategorySlider() {
                     <div className="relative aspect-[0.82] overflow-hidden">
 
                       {hasImage ? (
-                        <img
+                        <ResolvedImage
                           src={image}
                           alt={name}
                           width="600"

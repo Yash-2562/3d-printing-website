@@ -138,8 +138,6 @@ import { wishlistContext } from '../../../context/Wishlist/Wishlist.jsx';
 import { motion } from 'framer-motion';
 import ResolvedImage from '../../../components/common/ResolvedImage.jsx';
 
-const MotionResolvedImage = motion(ResolvedImage);
-
 export default function ProductDetails() {
   const { addProduct } = useContext(cartContext);
   const { renderStars } = useContext(productsContext);
@@ -410,11 +408,7 @@ export default function ProductDetails() {
                             className="flex h-[390px] items-center justify-center sm:h-[470px]"
                           >
 
-                            <MotionResolvedImage
-                              src={img}
-                              alt={`${ProdDetails.title || 'Product'} image ${
-                                index + 1
-                              }`}
+                            <motion.div
                               initial={{
                                 opacity: 0,
                                 scale: 0.94,
@@ -427,7 +421,15 @@ export default function ProductDetails() {
                                 duration: 0.7,
                               }}
                               className="h-full w-full object-contain drop-shadow-[0_35px_35px_rgba(15,23,42,.16)]"
-                            />
+                            >
+                              <ResolvedImage
+                                src={img}
+                                alt={`${ProdDetails.title || 'Product'} image ${
+                                  index + 1
+                                }`}
+                                className="h-full w-full object-contain"
+                              />
+                            </motion.div>
 
                           </div>
 
