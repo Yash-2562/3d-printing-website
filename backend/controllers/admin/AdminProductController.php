@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../models/Product.php';
+require_once __DIR__ . '/../../support/DatabaseSetup.php';
 
 function adminProducts(): void
 {
@@ -29,6 +30,7 @@ function adminProducts(): void
 
 function createAdminProduct(): void
 {
+    ensureCategoriesTable();
     $input = $_POST;
     $name = trim((string) ($input['name'] ?? ''));
     $description = trim((string) ($input['description'] ?? ''));
@@ -47,10 +49,19 @@ function createAdminProduct(): void
     }
     if ($imageCover === '') respond(['message' => 'A main image or image URL is required'], 422);
 
+    $categoryName = trim((string) ($input['category'] ?? ''));
+    $categoryId = trim((string) ($input['categoryId'] ?? ''));
+    if ($categoryId === '') {
+        $categoryLookup = db()->prepare('SELECT id, name FROM categories WHERE name = ?');
+        $categoryLookup->execute([$categoryName]);
+        $category = $categoryLookup->fetch();
+        $categoryId = $category['id'] ?? 'category-' . bin2hex(random_bytes(3));
+        $categoryName = $category['name'] ?? ($categoryName ?: 'General');
+    }
     $id = 'product-' . bin2hex(random_bytes(6));
     db()->prepare('INSERT INTO products (id, title, description, price, image_cover, ratings_average, category_id, category_name, brand_id, brand_name, quantity, sku, material, low_stock_threshold, made_to_order, status, featured) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')->execute([
         $id, $name, $description, $price, $imageCover,
-        trim((string) ($input['categoryId'] ?? 'category-' . bin2hex(random_bytes(3)))), trim((string) ($input['category'] ?? 'General')),
+        $categoryId, $categoryName,
         trim((string) ($input['brandId'] ?? 'brand-1')), trim((string) ($input['brand'] ?? 'PrintForge')),
         max(0, (int) ($input['stock'] ?? 0)), trim((string) ($input['sku'] ?? '')), trim((string) ($input['material'] ?? 'PLA')),
         max(0, (int) ($input['threshold'] ?? 5)), filter_var($input['madeToOrder'] ?? false, FILTER_VALIDATE_BOOLEAN), strtoupper((string) ($input['status'] ?? 'ACTIVE')) === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE', filter_var($input['featured'] ?? false, FILTER_VALIDATE_BOOLEAN),

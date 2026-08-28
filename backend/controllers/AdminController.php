@@ -11,12 +11,18 @@ require_once __DIR__ . '/admin/AdminPaymentController.php';
 require_once __DIR__ . '/admin/AdminSettingsController.php';
 require_once __DIR__ . '/admin/AdminOrderController.php';
 require_once __DIR__ . '/admin/AdminCustomRequestController.php';
+require_once __DIR__ . '/admin/AdminCategoryController.php';
 
 function handleAdminRoutes(string $method, ?string $section, array $segments): void
 {
     if ($method === 'GET' && $section === 'summary') adminSummary();
     if ($method === 'POST' && $section === 'products') createAdminProduct();
     if ($method === 'GET' && $section === 'products') adminProducts();
+    if ($method === 'GET' && $section === 'categories') adminCategories();
+    if ($method === 'POST' && $section === 'categories' && isset($segments[2])) updateAdminCategory($segments[2]);
+    if ($method === 'POST' && $section === 'categories') createAdminCategory();
+    if ($method === 'PUT' && $section === 'categories' && isset($segments[2])) updateAdminCategory($segments[2]);
+    if ($method === 'DELETE' && $section === 'categories' && isset($segments[2])) deleteAdminCategory($segments[2]);
     if ($method === 'PUT' && $section === 'products' && ($segments[3] ?? '') === 'stock' && isset($segments[2])) updateAdminProductStock($segments[2]);
     if ($method === 'PUT' && $section === 'products' && isset($segments[2]) && ($segments[3] ?? '') === 'edit') updateAdminProduct($segments[2]);
     if ($method === 'GET' && $section === 'orders') adminOrders();

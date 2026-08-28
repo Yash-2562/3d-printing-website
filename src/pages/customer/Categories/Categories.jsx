@@ -64,21 +64,6 @@ import apiClient from '../../../lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 
-/**
- * PocketForm Categories page
- * ---------------------------
- * Same data source / query shape as before. Redesign focuses on:
- *  - A "build plate" style header instead of a plain <h3>.
- *  - Skeleton loading cards (pulse) instead of a spinner — feels less like
- *    a blocking wait and more like tiles printing in.
- *  - Staggered entrance animation: cards fade + rise in one after another,
- *    like layers finishing on a print bed.
- *  - Hover: image scales slightly, a dark gradient rises from the bottom,
- *    and an "Explore" pill + arrow slides into view — no layout shift.
- *  - A thin animated "layer line" accent under the heading.
- * No new dependencies — pure CSS keyframes + Tailwind utility classes.
- */
-
 export default function Categories() {
   const [visible, setVisible] = useState(false);
 
@@ -97,43 +82,85 @@ export default function Categories() {
   }
 
   useEffect(() => {
-    // trigger stagger once data is ready
     if (data) {
-      const t = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(t);
+      const timer = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(timer);
     }
   }, [data]);
 
   return (
     <>
       <style>{`
-        @keyframes pf-rise {
-          from { opacity: 0; transform: translateY(22px) scale(0.98); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes pf-fade-up {
+          from {
+            opacity: 0;
+            transform: translateY(28px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        @keyframes pf-line-grow {
-          from { transform: scaleX(0); }
-          to   { transform: scaleX(1); }
+
+        @keyframes pf-line {
+          from {
+            transform: scaleX(0);
+          }
+          to {
+            transform: scaleX(1);
+          }
         }
+
+        @keyframes pf-grid {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
         @keyframes pf-shimmer {
-          0%   { background-position: -400px 0; }
-          100% { background-position: 400px 0; }
+          0% {
+            background-position: -500px 0;
+          }
+          100% {
+            background-position: 500px 0;
+          }
         }
-        .pf-card-enter {
+
+        .pf-category-card {
           opacity: 0;
-          animation: pf-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          animation: pf-fade-up 0.7s cubic-bezier(.22,1,.36,1) forwards;
         }
+
         .pf-heading-line {
-          animation: pf-line-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
           transform: scaleX(0);
+          animation: pf-line 0.8s cubic-bezier(.22,1,.36,1) .2s forwards;
         }
+
+        .pf-grid-pattern {
+          background-image:
+            linear-gradient(rgba(16, 185, 129, .055) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(16, 185, 129, .055) 1px, transparent 1px);
+          background-size: 42px 42px;
+        }
+
         .pf-skeleton {
-          background: linear-gradient(90deg, #e5e7eb 0px, #f3f4f6 40px, #e5e7eb 80px);
+          background: linear-gradient(
+            90deg,
+            #e5e7eb 0px,
+            #f5f5f5 80px,
+            #e5e7eb 160px
+          );
           background-size: 600px 100%;
           animation: pf-shimmer 1.4s infinite linear;
         }
+
         @media (prefers-reduced-motion: reduce) {
-          .pf-card-enter, .pf-heading-line, .pf-skeleton {
+          .pf-category-card,
+          .pf-heading-line,
+          .pf-skeleton {
             animation: none !important;
             opacity: 1 !important;
             transform: none !important;
@@ -141,80 +168,399 @@ export default function Categories() {
         }
       `}</style>
 
-      <div className="container mx-auto px-4 pt-20 pb-16">
-        {/* Header */}
-        <div className="mb-8 max-w-2xl mx-auto text-center flex flex-col items-center">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase text-green-700 mb-2">
-            <i className="fa-solid fa-layer-group" />
-            Print Collections
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-            Browse categories
-          </h1>
-          <p className="text-gray-500 text-sm sm:text-base">
-            From nano-banana scale keepsakes to custom desk minis — pick a
-            collection to see what's printable.
-          </p>
-          <div className="h-0.5 w-24 bg-green-700 rounded-full mt-4 pf-heading-line" />
-        </div>
+      <main className="relative min-h-screen overflow-hidden bg-transparent">
 
-        {/* Grid */}
-        <div className="flex flex-wrap items-stretch -m-3">
-          {isLoading || !data
-            ? Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  className="w-full lg:w-1/4 md:w-1/3 sm:w-1/2 p-3"
-                  key={i}
-                >
-                  <div className="rounded-lg overflow-hidden shadow-md bg-white">
-                    <div className="pf-skeleton h-80 w-full" />
-                    <div className="px-5 py-4">
-                      <div className="pf-skeleton h-4 w-2/3 rounded" />
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-16 pb-20">
+
+          {/* ================= HEADER ================= */}
+          <section className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+
+            <div className="inline-flex items-center gap-2 mb-4 px-3.5 py-1.5 rounded-full bg-white border border-emerald-100 shadow-sm">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
+
+              <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-emerald-700">
+                Print Collections
+              </span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.05]">
+              Find something
+              <span className="block text-emerald-700">
+                worth printing.
+              </span>
+            </h1>
+
+            <p className="mt-5 max-w-2xl mx-auto text-sm sm:text-base lg:text-lg leading-7 text-slate-500">
+              From tiny nano-banana minis and collectible figures
+              to thoughtful gifts, desk essentials and completely
+              custom creations.
+            </p>
+
+            <div className="flex justify-center mt-6">
+              <div className="h-1 w-16 rounded-full bg-emerald-700 pf-heading-line" />
+            </div>
+
+          </section>
+
+
+          {/* ================= GRID ================= */}
+          <section>
+
+            {isLoading || !data ? (
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl overflow-hidden bg-white shadow-sm border border-slate-100">
+                    <div className="pf-skeleton h-[360px] w-full" />
+
+                    <div className="p-5">
+                      <div className="pf-skeleton h-5 w-2/3 rounded mb-3" />
+                      <div className="pf-skeleton h-3 w-full rounded" />
                     </div>
                   </div>
-                </div>
-              ))
-            : data.map((category, i) => (
-                <div
-                  className="w-full lg:w-1/4 md:w-1/3 sm:w-1/2 p-3 pf-card-enter"
-                  key={category._id}
-                  style={{ animationDelay: visible ? `${(i % 8) * 70}ms` : '0ms' }}
-                >
-                  <Link
-                    to={`/categories/${category._id}`}
-                    className="group relative block bg-white mx-auto rounded-lg max-w-sm overflow-hidden shadow-md hover:shadow-xl hover:shadow-green-900/10 transition-shadow duration-300 dark:bg-gray-800 dark:border-gray-700"
-                  >
-                    <div className="relative overflow-hidden h-80">
-                      <img
-                        className="sm:object-cover object-contain object-top w-full h-full transition-transform duration-500 ease-out group-hover:scale-110"
-                        src={category.image}
-                        alt={category.title}
-                        loading="lazy"
-                      />
+                ))}
 
-                      {/* gradient overlay + CTA that rises on hover */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-4 pb-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-green-700/90 backdrop-blur-sm rounded-full px-3 py-1.5">
-                          Explore
-                          <i className="fa-solid fa-arrow-right text-[10px] transition-transform duration-300 group-hover:translate-x-0.5" />
-                        </span>
+              </div>
+
+            ) : (
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+
+                {data.map((category, i) => (
+
+                  <div
+                    key={category._id}
+                    className="pf-category-card"
+                    style={{
+                      animationDelay: visible
+                        ? `${i * 90}ms`
+                        : '0ms',
+                    }}
+                  >
+
+                    {(() => {
+                      const image = category.image?.replace(/[?&]text=.*$/, '');
+                      const hasImage = image && !image.includes('placehold.co');
+                      return (
+
+                    <Link
+                      to={`/categories/${category._id}`}
+                      className="
+                        group
+                        relative
+                        block
+                        h-full
+                        overflow-hidden
+                        rounded-2xl
+                        bg-white
+                        border
+                        border-slate-200/80
+                        shadow-[0_5px_25px_rgba(15,23,42,0.06)]
+                        hover:shadow-[0_18px_45px_rgba(15,23,42,0.13)]
+                        hover:-translate-y-1
+                        transition-all
+                        duration-500
+                      "
+                    >
+
+                      {/* IMAGE */}
+                      <div className="relative h-[330px] overflow-hidden bg-emerald-50">
+
+                        {hasImage ? (
+
+                          <img
+                            src={image}
+                            alt={category.name}
+                            loading="lazy"
+                            className="
+                              absolute
+                              inset-0
+                              h-full
+                              w-full
+                              object-cover
+                              transition-transform
+                              duration-700
+                              ease-out
+                              group-hover:scale-110
+                            "
+                            onError={(event) => {
+                              event.currentTarget.style.display = 'none';
+                            }}
+                          />
+
+                        ) : (
+
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
+                            <i className="fa-solid fa-cube text-6xl text-emerald-700/20" />
+                          </div>
+
+                        )}
+
+                        {/* IMAGE TINT */}
+                        <div className="
+                          absolute
+                          inset-0
+                          bg-gradient-to-t
+                          from-black/85
+                          via-black/15
+                          to-transparent
+                          opacity-90
+                        " />
+
+                        {/* TOP NUMBER */}
+                        <div className="
+                          absolute
+                          top-4
+                          left-4
+                          flex
+                          items-center
+                          justify-center
+                          w-9
+                          h-9
+                          rounded-full
+                          bg-white/90
+                          backdrop-blur-sm
+                          text-xs
+                          font-black
+                          text-slate-900
+                          shadow-sm
+                        ">
+                          {String(i + 1).padStart(2, '0')}
+                        </div>
+
+                        {/* HOVER ARROW */}
+                        <div className="
+                          absolute
+                          top-4
+                          right-4
+                          flex
+                          items-center
+                          justify-center
+                          w-10
+                          h-10
+                          rounded-full
+                          bg-white
+                          text-slate-900
+                          opacity-0
+                          translate-x-3
+                          group-hover:opacity-100
+                          group-hover:translate-x-0
+                          transition-all
+                          duration-300
+                          shadow-lg
+                        ">
+                          <i className="fa-solid fa-arrow-up-right text-xs" />
+                        </div>
+
+
+                        {/* CATEGORY TEXT */}
+                        <div className="
+                          absolute
+                          left-5
+                          right-5
+                          bottom-5
+                        ">
+
+                          <span className="
+                            block
+                            mb-2
+                            text-[10px]
+                            font-bold
+                            uppercase
+                            tracking-[0.18em]
+                            text-emerald-300
+                          ">
+                            {category.slug}
+                          </span>
+
+                          <h2 className="
+                            text-xl
+                            sm:text-2xl
+                            font-black
+                            leading-tight
+                            break-words
+                            line-clamp-2
+                            text-white
+                            drop-shadow-lg
+                          ">
+                            {category.name}
+                          </h2>
+
+                        </div>
+
                       </div>
 
-                      {/* corner accent */}
-                      <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_0_0_4px_rgba(21,128,61,0.25)]" />
-                    </div>
 
-                    <div className="px-5 py-3">
-                      <h3 className="text-gray-900 overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-lg tracking-tight dark:text-white group-hover:text-green-700 transition-colors duration-200">
-                        {category.name}
-                      </h3>
-                    </div>
-                  </Link>
+                      {/* CARD FOOTER */}
+                      <div className="
+                        flex
+                        items-center
+                        justify-between
+                        px-5
+                        py-4
+                        bg-white
+                      ">
+
+                        <span className="
+                          text-xs
+                          font-semibold
+                          text-slate-500
+                          group-hover:text-emerald-700
+                          transition-colors
+                          duration-300
+                        ">
+                          Explore collection
+                        </span>
+
+                        <span className="
+                          flex
+                          items-center
+                          justify-center
+                          w-8
+                          h-8
+                          rounded-full
+                          bg-slate-100
+                          text-slate-500
+                          group-hover:bg-emerald-700
+                          group-hover:text-white
+                          transition-all
+                          duration-300
+                        ">
+                          <i className="
+                            fa-solid
+                            fa-arrow-right
+                            text-[10px]
+                            transition-transform
+                            duration-300
+                            group-hover:translate-x-0.5
+                          " />
+                        </span>
+
+                      </div>
+
+                    </Link>
+                      );
+                    })()}
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            )}
+
+          </section>
+
+
+          {/* ================= BOTTOM CTA ================= */}
+          <section className="mt-14 sm:mt-16">
+
+            <div className="
+              relative
+              overflow-hidden
+              rounded-3xl
+              bg-slate-950
+              px-6
+              py-10
+              sm:px-10
+              sm:py-12
+              text-center
+            ">
+
+              {/* Decorative grid */}
+              <div className="
+                absolute
+                inset-0
+                opacity-10
+                pf-grid-pattern
+              " />
+
+              <div className="
+                absolute
+                -top-24
+                -right-24
+                w-64
+                h-64
+                rounded-full
+                bg-emerald-500/20
+                blur-3xl
+              " />
+
+              <div className="relative">
+
+                <div className="
+                  mx-auto
+                  mb-4
+                  flex
+                  items-center
+                  justify-center
+                  w-12
+                  h-12
+                  rounded-2xl
+                  bg-emerald-500/10
+                  border
+                  border-emerald-500/20
+                ">
+                  <i className="fa-solid fa-wand-magic-sparkles text-emerald-400" />
                 </div>
-              ))}
+
+                <h2 className="
+                  text-2xl
+                  sm:text-3xl
+                  font-black
+                  text-white
+                ">
+                  Have something else in mind?
+                </h2>
+
+                <p className="
+                  mt-2
+                  max-w-xl
+                  mx-auto
+                  text-sm
+                  sm:text-base
+                  text-slate-400
+                ">
+                  Turn your idea into a physical object.
+                  Send us your design and we'll handle the print.
+                </p>
+
+                <Link
+                  to="/custom-order"
+                  className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    mt-6
+                    px-5
+                    py-3
+                    rounded-full
+                    bg-emerald-600
+                    hover:bg-emerald-500
+                    text-white
+                    text-sm
+                    font-bold
+                    shadow-lg
+                    shadow-emerald-900/30
+                    transition-all
+                    duration-300
+                    hover:-translate-y-0.5
+                  "
+                >
+                  Start a custom order
+                  <i className="fa-solid fa-arrow-right text-xs" />
+                </Link>
+
+              </div>
+
+            </div>
+
+          </section>
+
         </div>
-      </div>
+      </main>
     </>
   );
 }

@@ -6,28 +6,33 @@ import { productsContext } from '../../../context/Products/Products';
 const categories = [
   {
     id: 'all',
-    label: 'All Minis',
+    label: 'All Categories',
     icon: 'fa-cubes',
   },
   {
     id: 'figures',
-    label: 'Mini Figures',
-    icon: 'fa-user',
+    label: 'Nano-Banana Minis',
+    icon: 'fa-cube',
   },
   {
     id: 'gifts',
-    label: '3D Gifts',
+    label: '3D Printed Gifts',
     icon: 'fa-gift',
   },
   {
     id: 'collectibles',
-    label: 'Collectibles',
+    label: 'Collectibles & Figurines',
     icon: 'fa-star',
   },
   {
     id: 'desk',
-    label: 'Desk Models',
-    icon: 'fa-cube',
+    label: 'Home & Desk',
+    icon: 'fa-house',
+  },
+  {
+    id: 'custom-prints',
+    label: 'Custom Prints',
+    icon: 'fa-print',
   },
 ];
 

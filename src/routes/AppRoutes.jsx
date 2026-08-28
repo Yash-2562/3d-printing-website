@@ -25,6 +25,7 @@ const Checkout = lazy(() => import('../pages/customer/Checkout/Checkout'));
 const Wishlist = lazy(() => import('../pages/customer/Wishlist/Wishlist'));
 const Brands = lazy(() => import('../pages/customer/Brands/Brands'));
 const Categories = lazy(() => import('../pages/customer/Categories/Categories'));
+const CategoryDetail = lazy(() => import('../pages/customer/CategoryDetail/CategoryDetail'));
 const Search = lazy(() => import('../pages/customer/Search/Search'));
 const Profile = lazy(() => import('../pages/customer/Profile/Profile'));
 const Orders = lazy(() => import('../pages/customer/Orders/Orders'));
@@ -121,6 +122,14 @@ function App() {
           element: (
             <ProtectedRoute>
               <Categories />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: 'categories/:id',
+          element: (
+            <ProtectedRoute>
+              <CategoryDetail />
             </ProtectedRoute>
           ),
         },

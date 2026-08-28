@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 const navigation = [
   { label: 'Overview', path: '/admin', icon: 'fa-chart-pie' },
   { label: 'Products', path: '/admin/products', icon: 'fa-cube' },
+  { label: 'Categories', path: '/admin/categories', icon: 'fa-layer-group' },
   { label: 'Orders', path: '/admin/orders', icon: 'fa-box' },
   { label: 'Inventory', path: '/admin/inventory', icon: 'fa-layer-group' },
   { label: 'Custom requests', path: '/admin/custom-print-requests', icon: 'fa-wand-magic-sparkles' },

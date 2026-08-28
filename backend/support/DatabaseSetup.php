@@ -3,6 +3,22 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
 
+function ensureCategoriesTable(): void
+{
+    db()->exec("CREATE TABLE IF NOT EXISTS categories (id VARCHAR(40) PRIMARY KEY, name VARCHAR(120) NOT NULL UNIQUE, slug VARCHAR(140) NOT NULL UNIQUE, description VARCHAR(500) NOT NULL DEFAULT '', image VARCHAR(500) NOT NULL DEFAULT '', status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE', created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB");
+    $defaults = [
+        ['category-1', 'Nano-Banana Minis', 'nano-banana-minis', 'Tiny viral figures, pocket-size models and cute miniatures.'],
+        ['category-2', '3D Printed Gifts', '3d-printed-gifts', 'Personalized gifts, keychains, nameplates and photo lithophanes.'],
+        ['category-3', 'Collectibles & Figurines', 'collectibles-figurines', 'Characters, animals, fantasy figures and display pieces.'],
+        ['category-4', 'Home & Desk', 'home-desk', 'Organizers, decor, planters, stands and desk accessories.'],
+        ['category-5', 'Custom Prints', 'custom-prints', 'Customer-uploaded designs, personalized models and custom orders.'],
+    ];
+    $statement = db()->prepare('INSERT IGNORE INTO categories (id, name, slug, description, image) VALUES (?, ?, ?, ?, ?)');
+    foreach ($defaults as [$id, $name, $slug, $description]) {
+        $statement->execute([$id, $name, $slug, $description, 'https://placehold.co/500x300/e8f5ef/176b4d?text=' . rawurlencode($name)]);
+    }
+}
+
 function ensureOrderStatuses(): void
 {
     db()->exec("ALTER TABLE orders MODIFY status ENUM('waiting_confirmation', 'confirmed', 'processing', 'printing_started', 'shipped', 'delivered', 'cancelled') NOT NULL DEFAULT 'waiting_confirmation'");

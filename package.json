@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"npm run backend\"",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run backend\"",
+    "dev:frontend": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-vite.ps1",
     "backend": "php -d extension=openssl -d extension=curl -d upload_max_filesize=20M -d post_max_size=25M -S localhost:8000 -t backend backend/index.php",
     "build": "vite build",
     "lint": "eslint .",

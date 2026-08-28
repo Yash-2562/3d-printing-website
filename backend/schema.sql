@@ -21,6 +21,16 @@ CREATE TABLE IF NOT EXISTS admin_users (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS categories (
+  id VARCHAR(40) PRIMARY KEY,
+  name VARCHAR(120) NOT NULL UNIQUE,
+  slug VARCHAR(140) NOT NULL UNIQUE,
+  description VARCHAR(500) NOT NULL DEFAULT '',
+  image VARCHAR(500) NOT NULL DEFAULT '',
+  status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 INSERT INTO admin_users (id, username, name, email, password_hash)
 VALUES ('admin-3d', '3D-admin', '3D Admin', '3d-admin@printforge.in', '$2y$12$DuXWnFuca7V7h9TVguv65ePUkMAceqGX9JyTc0hpvRVxCcxcoWz9a')
 ON DUPLICATE KEY UPDATE username = VALUES(username), name = VALUES(name), password_hash = VALUES(password_hash);

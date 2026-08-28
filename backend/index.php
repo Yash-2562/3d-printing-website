@@ -33,6 +33,8 @@ if ($resource === 'auth') {
 
 if ($resource === 'products' && $method === 'GET') listProducts($id);
 
+if ($resource === 'categories' && $method === 'GET' && $id) showCategory($id);
+
 if (($resource === 'categories' || $resource === 'brands') && $method === 'GET') {
     listCatalogTaxonomy($resource);
 }
